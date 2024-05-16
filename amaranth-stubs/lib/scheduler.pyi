@@ -1,5 +1,5 @@
 from .. import *
-from transactron.utils import HasElaborate
+from amaranth_types import HasElaborate
 
 class RoundRobin(Elaboratable):
     count: int

@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, MutableMapping, MutableSequence, MutableSet
 from typing import Any, Generic, Iterable, Iterator, Mapping, NoReturn, Optional, Sequence, TypeVar, final, overload
 from enum import Enum
-from transactron.utils import ValueLike, ShapeLike, StatementLike
+from amaranth_types import ValueLike, ShapeLike, StatementLike
 from amaranth.lib.data import View
 
 __all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "ValueKey", "ValueDict", "ValueSet", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]

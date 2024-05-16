@@ -6,7 +6,7 @@ from abc import abstractmethod
 from ._ast import *
 from ._cd import *
 from .. import _unused
-from transactron.utils import HasElaborate
+from amaranth_types import HasElaborate
 
 __all__ = ["UnusedElaboratable", "Elaboratable", "DriverConflict", "Fragment", "Instance"]
 

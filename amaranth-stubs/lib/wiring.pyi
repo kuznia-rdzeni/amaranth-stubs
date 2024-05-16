@@ -7,7 +7,7 @@ from collections.abc import Mapping, Iterator
 from typing import NoReturn, Literal, TypeVar, Generic, Any, Self, Optional, overload
 from ..hdl._ir import Elaboratable
 from .._utils import final
-from transactron.utils._typing import ShapeLike, ValueLike, AbstractInterface, AbstractSignature, ModuleLike
+from amaranth_types import ShapeLike, ValueLike, AbstractInterface, AbstractSignature, ModuleLike
 
 __all__ = ["In", "Out", "Signature", "PureInterface", "connect", "flipped", "Component"]
 

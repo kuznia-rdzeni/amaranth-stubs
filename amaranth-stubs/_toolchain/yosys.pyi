@@ -46,7 +46,7 @@ class YosysBinary:
         ...
     
     @classmethod
-    def data_dir(cls) -> pathlib.Path:
+    def data_dir(cls) -> Path:
         """Get Yosys data directory.
 
         Returns
@@ -105,7 +105,7 @@ class _BuiltinYosys(YosysBinary):
 class _SystemYosys(YosysBinary):
     YOSYS_BINARY = ...
     @classmethod
-    def available(cls): # -> bool:
+    def available(cls) -> bool:
         ...
     
     @classmethod
@@ -113,7 +113,7 @@ class _SystemYosys(YosysBinary):
         ...
     
     @classmethod
-    def data_dir(cls): # -> Path:
+    def data_dir(cls) -> Path:
         ...
     
     @classmethod
