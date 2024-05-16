@@ -60,6 +60,7 @@ LayoutLike: TypeAlias = (
     Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"] | tuple[str, "ShapeLike | LayoutLike", Direction]]
 )
 
+
 # Protocols for Amaranth classes
 class _ModuleBuilderDomainsLike(Protocol):
     def __getattr__(self, name: str) -> "_ModuleBuilderDomain": ...
