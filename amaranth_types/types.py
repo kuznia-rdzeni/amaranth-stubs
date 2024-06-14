@@ -12,6 +12,7 @@ from typing import (
     Union,
     Any,
     TYPE_CHECKING,
+    runtime_checkable,
 )
 from collections.abc import Iterable, Iterator
 from contextlib import AbstractContextManager
@@ -155,11 +156,13 @@ class AbstractSignature(Protocol):
     def __repr__(self) -> str: ...
 
 
-_T_AbstractSignature = TypeVar("_T_AbstractSignature", bound=AbstractSignature)
+_T_AbstractSignature = TypeVar("_T_AbstractSignature", bound=AbstractSignature, covariant=True)
 
 
+@runtime_checkable
 class AbstractInterface(Protocol, Generic[_T_AbstractSignature]):
-    signature: _T_AbstractSignature
+    @property
+    def signature(self) -> _T_AbstractSignature: ...
 
 
 class HasElaborate(Protocol):
