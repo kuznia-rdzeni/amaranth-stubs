@@ -21,7 +21,7 @@ from amaranth import *
 from amaranth.lib.wiring import Flow, Member
 from typing import Sequence
 from amaranth.hdl import ShapeCastable, ValueCastable
-from amaranth.hdl.rec import Layout, Direction
+from amaranth.lib.data import Layout
 
 if TYPE_CHECKING:
     from amaranth.hdl._ast import Statement
@@ -58,7 +58,7 @@ SrcLoc: TypeAlias = tuple[str, int]
 
 # Deprecated
 LayoutLike: TypeAlias = (
-    Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"] | tuple[str, "ShapeLike | LayoutLike", Direction]]
+    Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"] | tuple[str, "ShapeLike | LayoutLike"]]
 )
 
 
