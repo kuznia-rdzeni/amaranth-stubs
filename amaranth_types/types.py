@@ -57,9 +57,7 @@ SwitchKey: TypeAlias = str | int | Enum
 SrcLoc: TypeAlias = tuple[str, int]
 
 # Deprecated
-LayoutLike: TypeAlias = (
-    Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"]]
-)
+LayoutLike: TypeAlias = Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"]]
 
 
 # Protocols for Amaranth classes
