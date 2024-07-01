@@ -58,7 +58,7 @@ SrcLoc: TypeAlias = tuple[str, int]
 
 # Deprecated
 LayoutLike: TypeAlias = (
-    Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"] | tuple[str, "ShapeLike | LayoutLike"]]
+    Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"]]
 )
 
 
