@@ -2,7 +2,7 @@
 name = "amaranth-stubs"
 version = "2024.05.16.dev0"
 dependencies = [
-    "amaranth @ git+https://github.com/amaranth-lang/amaranth@f48b8650c4df42b3260c4791b18fad7991af0541"
+    "amaranth @ git+https://github.com/amaranth-lang/amaranth@6d65dc1366da2313e8e6a77d5093ddd6acdec8aa"
 ]
 requires-python = ">=3.11"
 classifiers = [

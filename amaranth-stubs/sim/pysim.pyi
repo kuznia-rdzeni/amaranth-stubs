@@ -34,7 +34,8 @@ class _VCDWriter:
     vcd_file: Any
     gtkw_file: Any
     gtkw_save: Any
-    gtkw_names: Any
+    gtkw_signal_names: Any
+    gtkw_memory_names: Any
     vcd_writer: Any
 
 class _Timeline:

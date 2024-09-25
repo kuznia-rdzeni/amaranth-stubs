@@ -27,7 +27,9 @@ class Delay(Command):
 
 
 class Tick(Command):
-    def __init__(self, domain=...) -> None:
+    domain: str | ClockDomain
+
+    def __init__(self, domain: str | ClockDomain = ...) -> None:
         ...
     
     def __repr__(self): # -> str:
@@ -55,6 +57,9 @@ class Simulator:
         ...
     
     def add_sync_process(self, process, *, domain=...): # -> None:
+        ...
+    
+    def add_testbench(self, process): # -> None:
         ...
     
     def add_clock(self, period, *, phase=..., domain=..., if_exists=...):

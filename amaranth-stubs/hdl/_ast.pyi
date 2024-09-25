@@ -9,7 +9,7 @@ from enum import Enum
 from amaranth_types import ValueLike, ShapeLike, StatementLike
 from amaranth.lib.data import View
 
-__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "ValueKey", "ValueDict", "ValueSet", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
+__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
 
 
 T = TypeVar("T")
@@ -430,7 +430,7 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
     """A varying integer value.
 
     Pa"""
-    def __init__(self, shape: Optional[ShapeLike] = ..., *, name: Optional[str] = ..., reset: int | Enum = ..., reset_less: bool = ..., attrs: dict = ..., decoder: type[Enum] | Callable[[int], str] = ..., src_loc_at=...) -> None:
+    def __init__(self, shape: Optional[ShapeLike] = ..., *, name: Optional[str] = ..., init: int | Enum = ..., reset_less: bool = ..., attrs: dict = ..., decoder: type[Enum] | Callable[[int], str] = ..., src_loc_at=...) -> None:
         ...
 
     @overload
@@ -724,34 +724,6 @@ class _MappedKeySet(MutableSet, _MappedKeyCollection):
     def __repr__(self): # -> str:
         ...
     
-
-
-class ValueKey:
-    def __init__(self, value: ValueLike) -> None:
-        ...
-    
-    def __hash__(self) -> int:
-        ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-    def __lt__(self, other: ValueKey) -> bool:
-        ...
-    
-    def __repr__(self) -> str:
-        ...
-    
-
-
-class ValueDict(_MappedKeyDict):
-    _map_key = ...
-    _unmap_key = ...
-
-
-class ValueSet(_MappedKeySet):
-    _map_key = ...
-    _unmap_key = ...
 
 
 class SignalKey:
