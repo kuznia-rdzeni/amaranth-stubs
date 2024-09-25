@@ -286,8 +286,13 @@ class Value(metaclass=ABCMeta):
     __hash__ = ...
 
 
+class _ConstMeta(ABCMeta):
+    def __call__(cls, value: int | ShapeCastable, shape: Optional[ShapeLike] = ..., src_loc_at=0, **kwargs):
+        ...
+
+
 @final
-class Const(Value):
+class Const(Value, metaclass=_ConstMeta):
     """A constant, literal integer valu"""
     src_loc = ...
     @staticmethod
