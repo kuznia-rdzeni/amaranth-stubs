@@ -42,8 +42,13 @@ class ShapeCastable(Generic[U]):
 
 class Shape:
     """Bit width and signedness of a va"""
-    width: int
-    signed: bool
+    @property
+    def width(self) -> int:
+        ...
+
+    @property
+    def signed(self) -> int:
+        ...
 
     def __init__(self, width: int =..., signed: bool =...) -> None:
         ...
@@ -59,6 +64,9 @@ class Shape:
         ...
     
     def __eq__(self, other) -> bool:
+        ...
+
+    def __hash__(self) -> int:
         ...
     
 
