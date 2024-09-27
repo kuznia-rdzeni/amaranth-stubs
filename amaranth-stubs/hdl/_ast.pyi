@@ -8,8 +8,9 @@ from typing import Any, Generic, Iterable, Iterator, Mapping, NoReturn, Optional
 from enum import Enum
 from amaranth_types import ValueLike, ShapeLike, StatementLike
 from amaranth.lib.data import View
+from amaranth_types.types import IOValueLike
 
-__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "SwitchValue", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
+__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "SwitchValue", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "IOValue", "IOPort", "IOConcat", "IOSlice", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
 
 
 T = TypeVar("T")
@@ -693,6 +694,94 @@ class Switch(Statement):
     def __repr__(self) -> str:
         ...
     
+
+class IOValue(metaclass=ABCMeta):
+    @staticmethod
+    def cast(obj: IOValueLike) -> IOValue:
+        ...
+
+    def __init__(self, *, src_loc_at : int = ...) -> None:
+        ...
+
+    @property
+    @abstractmethod
+    def metadata(self) -> tuple:
+        ...
+
+    def __getitem__(self, key: int | slice) -> IOValue:
+        ...
+
+
+@final
+class IOPort(IOValue):
+    def __init__(self, width: int, *, name: Optional[str] = ..., attrs: Optional[dict] = ..., metadata: Optional[tuple] = ..., src_loc_at: int = ...) -> None:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+    @property
+    def width(self) -> int:
+        ...
+
+    @property
+    def attrs(self) -> dict:
+        ...
+
+    @property
+    def metadata(self) -> tuple:
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+
+@final
+class IOConcat(IOValue):
+    def __init__(self, parts: Iterable[IOValue], src_loc_at: int = ...) -> None:
+        ...
+
+    @property
+    def parts(self) -> tuple[IOValue]:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+    @property
+    def metadata(self) -> tuple:
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+
+@final
+class IOSlice(IOValue):
+    def __init__(self, value: IOValueLike, start: int, stop: int, *, src_loc_at: int = ...) -> None:
+        ...
+
+    @property
+    def value(self) -> IOValue:
+        ...
+
+    @property
+    def start(self) -> int:
+        ...
+
+    @property
+    def stop(self) -> int:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+    @property
+    def metadata(self) -> tuple:
+        ...
+
+    def __repr__(self) -> str:
+        ...
 
 
 class _MappedKeyCollection(metaclass=ABCMeta):

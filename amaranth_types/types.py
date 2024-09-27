@@ -51,6 +51,7 @@ P = ParamSpec("P")
 # Types representing Amaranth concepts
 FragmentLike: TypeAlias = Fragment | Elaboratable
 ValueLike: TypeAlias = Value | int | Enum | ValueCastable
+IOValueLike: TypeAlias = IOValue | Value
 ShapeLike: TypeAlias = Shape | ShapeCastable | int | range | type[Enum]
 StatementLike: TypeAlias = Union["Statement", Iterable["StatementLike"]]
 SwitchKey: TypeAlias = str | int | Enum

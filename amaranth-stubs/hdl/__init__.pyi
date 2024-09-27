@@ -1,6 +1,6 @@
 from ._ast import Shape, unsigned, signed, ShapeCastable, ShapeLike
 from ._ast import Value, ValueCastable, ValueLike
-from ._ast import Const, C, Mux, Cat, Array, Signal, ClockSignal, ResetSignal
+from ._ast import Const, C, Mux, Cat, Array, Signal, ClockSignal, ResetSignal, IOValue, IOPort
 from ._dsl import SyntaxError, SyntaxWarning, Module
 from ._cd import DomainError, ClockDomain
 from ._ir import UnusedElaboratable, Elaboratable, DriverConflict, Fragment, Instance
@@ -14,6 +14,7 @@ __all__ = [
     "Shape", "unsigned", "signed", "ShapeCastable", "ShapeLike",
     "Value", "ValueCastable", "ValueLike",
     "Const", "C", "Mux", "Cat", "Array", "Signal", "ClockSignal", "ResetSignal",
+    "IOValue", "IOPort",
     # _dsl
     "SyntaxError", "SyntaxWarning", "Module",
     # _cd
