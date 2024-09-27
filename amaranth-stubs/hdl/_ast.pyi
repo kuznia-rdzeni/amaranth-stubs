@@ -9,7 +9,7 @@ from enum import Enum
 from amaranth_types import ValueLike, ShapeLike, StatementLike
 from amaranth.lib.data import View
 
-__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
+__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "SwitchValue", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
 
 
 T = TypeVar("T")
@@ -403,7 +403,26 @@ class Cat(Value):
     
     def __repr__(self) -> str:
         ...
+
+
+@final
+class SwitchValue(Value):
+    def __init__(self, test, cases, *, src_loc=None, src_loc_at=0) -> None:
+        ...
+
+    @property
+    def test(self) -> Value:
+        ...
+
+    @property
+    def cases(self) -> tuple[tuple[Optional[tuple[str, ...]], Value], ...]:
+        ...
+
+    def shape(self) -> Shape:
+        ...
     
+    def __repr__(self) -> str:
+        ...
 
 
 @final
