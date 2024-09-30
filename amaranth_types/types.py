@@ -20,7 +20,7 @@ from enum import Enum
 from amaranth import *
 from amaranth.lib.wiring import Flow, Member
 from typing import Sequence
-from amaranth.hdl import ShapeCastable, ValueCastable
+from amaranth.hdl import IOValue, ShapeCastable, ValueCastable
 from amaranth.lib.data import Layout
 
 if TYPE_CHECKING:
@@ -41,7 +41,8 @@ __all__ = [
     "ModuleLike",
     "HasElaborate",
     "AbstractInterface",
-    "AbstractSignature"
+    "AbstractSignature",
+    "AbstractComponent"
 ]
 
 T = TypeVar("T")
@@ -166,6 +167,10 @@ class AbstractInterface(Protocol, Generic[_T_AbstractSignature]):
 
 class HasElaborate(Protocol):
     def elaborate(self, platform) -> "HasElaborate": ...
+
+
+class AbstractComponent(AbstractInterface[_T_AbstractSignature], HasElaborate, Protocol):
+    pass
 
 
 def type_self_kwargs_as(as_func: Callable[Concatenate[Any, P], Any]):
