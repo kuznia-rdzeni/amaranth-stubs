@@ -14,6 +14,10 @@ class ResourceError(Exception):
     ...
 
 
+class PortGroup:
+    ...
+
+
 class ResourceManager:
     def __init__(self, resources: Iterable[Resource], connectors: Iterable[Connector]) -> None:
         ...
@@ -27,7 +31,7 @@ class ResourceManager:
     def lookup(self, name: str, number: int=...) -> Resource:
         ...
     
-    def request(self, name: str, number: int=..., *, dir=..., xdr=...) -> Record | Pin:
+    def request(self, name: str, number: int=..., *, dir=..., xdr=...) -> Pin | PortLike | PortGroup:
         ...
     
     def iter_single_ended_pins(self): # -> Generator[tuple[Unknown, Unknown, Unknown, Unknown], Any, None]:
