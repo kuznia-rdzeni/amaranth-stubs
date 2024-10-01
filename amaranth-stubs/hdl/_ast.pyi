@@ -10,7 +10,21 @@ from amaranth_types import ValueLike, ShapeLike, StatementLike
 from amaranth.lib.data import View
 from amaranth_types.types import IOValueLike
 
-__all__ = ["Shape", "ShapeCastable", "signed", "unsigned", "Value", "Const", "C", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "SwitchValue", "Repl", "Array", "ArrayProxy", "Signal", "ClockSignal", "ResetSignal", "ValueCastable", "Sample", "Past", "Stable", "Rose", "Fell", "Initial", "Statement", "Switch", "Property", "Assign", "Assert", "Assume", "Cover", "IOValue", "IOPort", "IOConcat", "IOSlice", "SignalKey", "SignalDict", "SignalSet", "ValueLike", "ShapeLike", "StatementLike", "SwitchKey"]
+
+__all__: list[str]  = [
+    "SyntaxError", "SyntaxWarning",
+    "Shape", "signed", "unsigned", "ShapeCastable", "ShapeLike",
+    "Value", "Const", "C", "AnyValue", "AnyConst", "AnySeq", "Operator", "Mux", "Part", "Slice", "Cat", "Concat", "SwitchValue",
+    "Array", "ArrayProxy",
+    "Signal", "ClockSignal", "ResetSignal",
+    "ValueCastable", "ValueLike",
+    "Initial",
+    "Format",
+    "Statement", "Switch",
+    "Property", "Assign", "Print", "Assert", "Assume", "Cover",
+    "IOValue", "IOPort", "IOConcat", "IOSlice",
+    "SignalKey", "SignalDict", "SignalSet",
+]
 
 
 T = TypeVar("T")
@@ -18,6 +32,14 @@ U = TypeVar("U")
 _T_ShapeCastable = TypeVar("_T_ShapeCastable", bound=ShapeCastable, covariant=True)
 Flattenable = T | Iterable[Flattenable[T]]
 SwitchKey = str | int | Enum
+
+
+class SyntaxError(Exception):
+    pass
+  
+
+class SyntaxWarning(Warning):
+    pass
 
 
 class DUID:
@@ -28,16 +50,25 @@ class DUID:
     
 
 class ShapeCastable(Generic[U]):
-    def __new__(cls: type[T], *args, **kwargs) -> T:
+    def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def as_shape(self) -> Shape:
+    def __init_subclass__(cls, **kwargs) -> None:
+        ...
+
+    def as_shape(self, *args, **kwargs) -> Shape:
         ...
 
     def __call__(self, target: ValueLike) -> U:
         ...
 
-    def const(self, init) -> Const:
+    def const(self, *args, **kwargs) -> Const:
+        ...
+
+    def from_bits(self, raw: int):
+        ...
+
+    def format(self, obj: ValueLike, spec: str) -> Format:
         ...
 
 
@@ -93,6 +124,9 @@ class Value(metaclass=ABCMeta):
         ...
     
     def __invert__(self) -> Value:
+        ...
+    
+    def __pos__(self) -> Value:
         ...
     
     def __neg__(self) -> Value:
@@ -184,7 +218,13 @@ class Value(metaclass=ABCMeta):
     
     def __getitem__(self, key: int | slice) -> Value:
         ...
-    
+
+    def __contains__(self, other) -> NoReturn:
+        ...
+
+    def __format__(self, format_desc) -> NoReturn:
+        ...
+
     def as_unsigned(self) -> Value:
         """Conversion to unsigned.
 
@@ -402,6 +442,22 @@ class Cat(Value):
     def shape(self) -> Shape:
         ...
     
+    def __repr__(self) -> str:
+        ...
+
+
+@final
+class Concat(Value):
+    def __init__(self, args: Iterable[ValueLike], src_loc_at=0) -> None:
+        ...
+
+    @property
+    def parts(self) -> tuple[Value, ...]:
+        ...
+
+    def shape(self) -> Shape:
+        ...
+
     def __repr__(self) -> str:
         ...
 
@@ -631,7 +687,21 @@ class Initial(Value):
     
     def __repr__(self) -> str:
         ...
-    
+
+
+@final
+class Format:
+    def __init__(self, format: str, *args, **kwargs) -> None:
+        ...
+
+    def __add__(self, other: Format) -> Format:
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+    def __format__(self, format_desc) -> NoReturn:
+        ...
 
 
 class _StatementList(list[Statement]):
@@ -662,29 +732,42 @@ class Assign(Statement):
         ...
     
 
+@final
+class Print(Statement):
+    def __init__(self, *args, sep: str = ..., end: str = ..., src_loc_at=...) -> None:
+        ...
 
-class Property(Statement):
-    def __init__(self, test, *, _check=..., _en=..., src_loc_at=...) -> None:
+    @property
+    def message(self) -> Format:
         ...
     
     def __repr__(self) -> str:
         ...
+
+
+class Property(Statement):
+    class Kind(Enum):
+        Assert = ...
+        Assume = ...
+        Cover = ...
+
+    def __init__(self, kind: str | Kind, test: ValueLike, message: Optional[str | Format] = ..., *, src_loc_at=...) -> None:
+        ...
     
+    def __repr__(self) -> str:
+        ...
 
 
-@final
-class Assert(Property):
-    _kind = ...
+def Assert(test: ValueLike, message: Optional[str | Format], *, src_loc_at=...) -> Property:
+    ...
 
 
-@final
-class Assume(Property):
-    _kind = ...
+def Assume(test: ValueLike, message: Optional[str | Format], *, src_loc_at=...) -> Property:
+    ...
 
 
-@final
-class Cover(Property):
-    _kind = ...
+def Cover(test: ValueLike, message: Optional[str | Format], *, src_loc_at=...) -> Property:
+    ...
 
 
 class Switch(Statement):

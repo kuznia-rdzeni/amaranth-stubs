@@ -71,7 +71,10 @@ class EnumMeta(ShapeCastable, py_enum.EnumMeta, Generic[_T_ViewClass]):
     def __call__(cls, value: int | ValueLike) -> Value | ValueCastable:
         ...
     
-    def const(cls, init) -> Const:
+    def const(cls: EnumMeta[_T_ViewClass], init) -> _T_ViewClass:
+        ...
+
+    def from_bits(cls: EnumMeta[_T_ViewClass], bits: int) -> _T_ViewClass:
         ...
     
 
