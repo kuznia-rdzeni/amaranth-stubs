@@ -8,21 +8,13 @@ from ..hdl import *
 from ._base import *
 
 __all__ = ["PySimEngine"]
-class _NameExtractor:
-    def __init__(self) -> None:
-        ...
-    
-    def __call__(self, fragment, *, hierarchy=...): # -> SignalDict:
-        ...
-    
-
 
 class _VCDWriter:
     @staticmethod
     def decode_to_vcd(signal, value):
         ...
     
-    def __init__(self, fragment, *, vcd_file, gtkw_file=..., traces=...) -> None:
+    def __init__(self, design, *, vcd_file, gtkw_file=..., traces=..., fs_per_delta=..., processes=...) -> None:
         ...
     
     def update(self, timestamp, signal, value): # -> None:

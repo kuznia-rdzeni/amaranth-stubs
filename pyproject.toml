@@ -1,6 +1,6 @@
 [project]
 name = "amaranth-stubs"
-version = "2024.09.27.dev0"
+version = "2024.10.01.dev0"
 dependencies = [
     "amaranth @ git+https://github.com/amaranth-lang/amaranth@9bd536bbf96b07720d6e4a8709b30492af8ddd13"
 ]
