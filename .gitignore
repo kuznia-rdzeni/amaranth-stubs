@@ -17,3 +17,6 @@ venv.bak/
 
 # Egg
 *.egg-info
+
+# Editors
+*.swp
