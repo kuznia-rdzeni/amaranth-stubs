@@ -259,13 +259,6 @@ class Value(metaclass=ABCMeta):
         """Compute pairwise exclusive-or of"""
         ...
     
-    def implies(premise, conclusion: ValueLike) -> Value:
-        """Implication.
-
-        Returns
-  """
-        ...
-    
     def bit_select(self, offset: ValueLike, width: int) -> Value:
         """Part-select with bit granularity"""
         ...
