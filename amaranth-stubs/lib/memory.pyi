@@ -62,6 +62,10 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     def __init__(self: Memory[_T_ShapeLike, Value], data: None = ..., *, shape: _T_ShapeLike = ..., depth: int = ..., init: Iterable[ValueLike] = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
         ...
 
+    @overload
+    def __init__(self: Memory[_T_ShapeLike, Value], data: MemoryData = ..., *, shape: None = ..., depth: None = ..., init: None = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
+        ...
+
     def __init__(self, data: Optional[MemoryData] = None, *, shape: Optional[ShapeLike] = None, depth: Optional[int] = None, init: Optional[Iterable[ValueLike]] = None, attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
         ...
     
