@@ -14,7 +14,7 @@ class _VCDWriter:
     def decode_to_vcd(signal, value):
         ...
     
-    def __init__(self, design, *, vcd_file, gtkw_file=..., traces=..., fs_per_delta=..., processes=...) -> None:
+    def __init__(self, state, design, *, vcd_file, gtkw_file=..., traces=..., fs_per_delta=..., processes=...) -> None:
         ...
     
     def update(self, timestamp, signal, value): # -> None:
