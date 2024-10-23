@@ -7,7 +7,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from typing import Any, Optional, TypeVar, Generic, Self
 from amaranth.hdl import *
 import amaranth.hdl as hdl
-from amaranth.hdl._ast import Assign, ShapeCastable, ValueCastable
+from amaranth.hdl._ast import Assign, ShapeCastable, ValueCastable, Format, _FormatLike
 from amaranth_types import ShapeLike, ValueLike
 
 __all__ = ["Field", "Layout", "StructLayout", "UnionLayout", "ArrayLayout", "FlexibleLayout", "View", "Const", "Struct", "Union"]
@@ -83,6 +83,9 @@ class Layout(ShapeCastable[View[Self]], metaclass=ABCMeta):
     def from_bits(self, raw: int) -> Const:
         ...
 
+    def format(self, value: ValueLike, format_spec: str) -> Format.Struct:
+        ...
+
 
 class StructLayout(Layout):
     def __init__(self, members: Mapping[str, ShapeLike]) -> None:
@@ -154,6 +157,9 @@ class ArrayLayout(Layout):
     
     def __repr__(self) -> str:
         ...
+
+    def format(self, value: ValueLike, format_spec: str) -> Format.Array:
+        ...
     
 
 
@@ -213,6 +219,9 @@ class _AggregateMeta(ShapeCastable[Self], type):
         ...
 
     def from_bits(cls, bits):
+        ...
+
+    def format(self, value: ValueLike, format_spec: str) -> _FormatLike:
         ...
 
 

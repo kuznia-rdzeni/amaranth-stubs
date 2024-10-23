@@ -706,7 +706,7 @@ class Format(_FormatLike):
         ...
 
     class Enum(_FormatLike):
-        def __init__(self, value: ValueLike, /, variants: EnumMeta | Mapping[int, str] | Iterable[tuple[int, str]]):
+        def __init__(self, value: ValueLike, /, variants: EnumMeta | Mapping[int, str] | Iterable[tuple[int, str]], *, name: Optional[str] = ...):
             ...
 
         def __repr__(self) -> str:
