@@ -30,19 +30,16 @@ class _VCDWriter:
     gtkw_memory_names: Any
     vcd_writer: Any
 
-class _Timeline:
+class _PyTimeline:
     def __init__(self) -> None:
         ...
     
     def reset(self): # -> None:
         ...
     
-    def at(self, run_at, process): # -> None:
+    def set_waker(self, interval, waker):
         ...
-    
-    def delay(self, delay_by, process): # -> None:
-        ...
-    
+
     def advance(self): # -> bool:
         ...
     
@@ -52,8 +49,14 @@ class _PySignalState(BaseSignalState):
     __slots__ = ...
     def __init__(self, signal, pending) -> None:
         ...
-    
-    def set(self, value): # -> None:
+
+    def reset(self):
+        ...
+
+    def add_waker(self, waker):
+        ...
+
+    def update(self, value):
         ...
     
     def commit(self): # -> bool:
@@ -61,7 +64,7 @@ class _PySignalState(BaseSignalState):
     
 
 
-class _PySimulation(BaseSimulation):
+class _PyEngineState(BaseEngineState):
     def __init__(self) -> None:
         ...
     
@@ -71,15 +74,18 @@ class _PySimulation(BaseSimulation):
     def get_signal(self, signal): # -> int:
         ...
     
-    def add_trigger(self, process, signal, *, trigger=...): # -> None:
+    def get_memory(self, memory): # -> int:
         ...
     
-    def remove_trigger(self, process, signal): # -> None:
+    def set_delay_waker(self, interval, waker):
         ...
-    
-    def wait_interval(self, process, interval): # -> None:
+
+    def add_signal_waker(self, signal, waker):
         ...
-    
+
+    def add_memory_waker(self, memory, waker):
+        ...
+
     def commit(self, changed=...): # -> bool:
         ...
     
@@ -89,10 +95,12 @@ class PySimEngine(BaseEngine):
     def __init__(self, fragment) -> None:
         ...
     
-    def add_coroutine_process(self, process, *, default_cmd): # -> None:
+    @property
+    def state(self) -> BaseEngineState:
         ...
-    
-    def add_clock_process(self, clock, *, phase, period): # -> None:
+
+    @property
+    def now(self): # -> int | None:
         ...
     
     def reset(self): # -> None:
@@ -100,11 +108,28 @@ class PySimEngine(BaseEngine):
     
     def advance(self): # -> bool:
         ...
-    
-    @property
-    def now(self): # -> int | None:
+
+    def add_clock_process(self, clock, *, phase, period):
         ...
-    
+
+    def add_async_process(self, simulator, process):
+        ...
+
+    def add_async_testbench(self, simulator, process, *, background):
+        ...
+
+    def add_trigger_combination(self, combination, *, oneshot):
+        ...
+
+    def get_value(self, expr):
+        ...
+
+    def set_value(self, expr, value):
+        ...
+
+    def step_design(self):
+        ...
+
     @contextmanager
     def write_vcd(self, *, vcd_file, gtkw_file, traces): # -> Generator[None, None, None]:
         ...

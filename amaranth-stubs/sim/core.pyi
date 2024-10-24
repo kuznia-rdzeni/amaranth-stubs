@@ -6,9 +6,14 @@ from .._utils import deprecated
 from ..hdl._cd import *
 from ..hdl._ir import *
 from ._pycoro import Tick, Settle, Delay, Passive, Active
+from ._async import DomainReset, BrokenTrigger
 
-__all__ = ["Settle", "Delay", "Tick", "Passive", "Active", "Simulator"]
-
+__all__ = [
+    "DomainReset", "BrokenTrigger",
+    "Simulator",
+    # deprecated
+    "Settle", "Delay", "Tick", "Passive", "Active",
+]
 
 class Simulator:
     def __init__(self, fragment, *, engine=...) -> None:
@@ -17,10 +22,10 @@ class Simulator:
     def add_process(self, process): # -> None:
         ...
     
-    def add_sync_process(self, process, *, domain=...): # -> None:
+    def add_testbench(self, process, *, background=False):
         ...
-    
-    def add_testbench(self, process): # -> None:
+
+    def add_sync_process(self, process, *, domain=...): # -> None:
         ...
     
     def add_clock(self, period, *, phase=..., domain=..., if_exists=...):

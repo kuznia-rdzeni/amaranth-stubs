@@ -6,7 +6,7 @@ from .._utils import deprecated
 from ..hdl._cd import *
 from ..hdl._ir import *
 
-__all__ = ["Settle", "Delay", "Tick", "Passive", "Active"]
+__all__ = ["Command", "Settle", "Delay", "Tick", "Passive", "Active"]
 class Command:
     ...
 
