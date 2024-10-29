@@ -14,7 +14,7 @@ from typing import (
     TYPE_CHECKING,
     runtime_checkable,
 )
-from collections.abc import Iterable, Iterator
+from collections.abc import Coroutine, Generator, Iterable, Iterator
 from contextlib import AbstractContextManager
 from enum import Enum
 from amaranth import *
@@ -22,6 +22,8 @@ from amaranth.lib.wiring import Flow, Member
 from typing import Sequence
 from amaranth.hdl import IOValue, ShapeCastable, ValueCastable
 from amaranth.lib.data import Layout
+from amaranth.sim._async import ProcessContext, TestbenchContext
+from amaranth.sim._pycoro import Command
 
 if TYPE_CHECKING:
     from amaranth.hdl._ast import Statement
@@ -36,7 +38,9 @@ __all__ = [
     "LayoutLike",
     "SwitchKey",
     "SrcLoc",
-    "SrcLoc",
+    "AnySimulatorContext",
+    "TestGenerator",
+    "TestCoroutine",
     "_ModuleBuilderDomainsLike",
     "ModuleLike",
     "HasElaborate",
@@ -57,6 +61,9 @@ ShapeLike: TypeAlias = Shape | ShapeCastable | int | range | type[Enum]
 StatementLike: TypeAlias = Union["Statement", Iterable["StatementLike"]]
 SwitchKey: TypeAlias = str | int | Enum
 SrcLoc: TypeAlias = tuple[str, int]
+AnySimulatorContext: TypeAlias = ProcessContext | TestbenchContext
+TestGenerator: TypeAlias = Generator[Union[Command, Value, "Statement", None], Any, T]
+TestCoroutine: TypeAlias = Coroutine[Any, Any, T]
 
 # Deprecated
 LayoutLike: TypeAlias = Layout | Sequence[tuple[str, "ShapeLike | LayoutLike"]]
