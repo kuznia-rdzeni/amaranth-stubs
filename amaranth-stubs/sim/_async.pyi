@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from contextlib import contextmanager
 from typing import Any, Never, Optional, overload
 from ..hdl import *
@@ -73,7 +74,7 @@ class TriggerCombination:
     def __await__(self):
         ...
 
-    async def __aiter__(self):
+    async def __aiter__(self) -> AsyncGenerator:
         ...
 
 
@@ -94,7 +95,7 @@ class TickTrigger:
     def __await__(self):
         ...
 
-    async def __aiter__(self):
+    async def __aiter__(self) -> AsyncGenerator:
         ...
 
 
