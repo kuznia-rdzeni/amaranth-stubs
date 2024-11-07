@@ -346,7 +346,11 @@ class Const(Value, metaclass=_ConstMeta):
     
     def shape(self) -> Shape:
         ...
-    
+
+    @property
+    def value(self) -> int:
+        ...
+
     def __repr__(self) -> str:
         ...
     
