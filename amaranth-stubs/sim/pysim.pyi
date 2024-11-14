@@ -131,7 +131,7 @@ class PySimEngine(BaseEngine):
         ...
 
     @contextmanager
-    def write_vcd(self, *, vcd_file, gtkw_file, traces): # -> Generator[None, None, None]:
+    def write_vcd(self, *, vcd_file, gtkw_file, traces, fs_per_delta): # -> Generator[None, None, None]:
         ...
     
 

@@ -10,7 +10,7 @@ from ..lib import wiring
 
 
 __all__ = [
-    "Direction", "PortLike", "SingleEndedPort", "DifferentialPort",
+    "Direction", "PortLike", "SingleEndedPort", "DifferentialPort", "SimulationPort",
     "Buffer", "FFBuffer", "DDRBuffer",
     "Pin",
 ]
@@ -66,6 +66,27 @@ class PortLike(metaclass=ABCMeta):
 
         The result should be such that using :class:`Buffer` on it is equivalent to using
         :class:`Buffer` on the original, with added inverters on the :py:`i` and :py:`o` ports."""
+        ...
+
+    @abstractmethod
+    def __add__(self, other) -> PortLike:
+        """Concatenates two library I/O ports of the same type.
+        The direction of the resulting port is:
+        * The same as the direction of both, if the two ports have the same direction.
+        * :attr:`Direction.Input` if a bidirectional port is concatenated with an input port.
+        * :attr:`Direction.Output` if a bidirectional port is concatenated with an output port.
+        Returns
+        -------
+        :py:`type(self)`
+            A new :py:`type(self)` which contains wires from :py:`self` followed by wires
+            from :py:`other`, preserving their polarity inversion.
+        Raises
+        ------
+        :exc:`ValueError`
+            If an input port is concatenated with an output port.
+        :exc:`TypeError`
+            If :py:`self` and :py:`other` have different types.
+        """
         ...
 
 
@@ -131,15 +152,6 @@ class SingleEndedPort(PortLike):
         ...
 
     def __add__(self, other: SingleEndedPort) -> SingleEndedPort:
-        """Concatenates two :class:`SingleEndedPort` objects together, returning a new
-        :class:`SingleEndedPort` object.
-
-        When the concatenated ports have different directions, the conflict is resolved as follows:
-
-        - If a bidirectional port is concatenated with an input port, the result is an input port.
-        - If a bidirectional port is concatenated with an output port, the result is an output port.
-        - If an input port is concatenated with an output port, :exc:`ValueError` is raised.
-        """
         ...
 
     def __repr__(self) -> str:
@@ -215,15 +227,81 @@ class DifferentialPort(PortLike):
         ...
 
     def __add__(self, other: DifferentialPort) -> DifferentialPort:
-        """Concatenates two :class:`DifferentialPort` objects together, returning a new
-        :class:`DifferentialPort` object.
+        ...
 
-        When the concatenated ports have different directions, the conflict is resolved as follows:
+    def __repr__(self) -> str:
+        ...
 
-        - If a bidirectional port is concatenated with an input port, the result is an input port.
-        - If a bidirectional port is concatenated with an output port, the result is an output port.
-        - If an input port is concatenated with an output port, :exc:`ValueError` is raised.
-        """
+
+class SimulationPort(PortLike):
+    """Represents a simulation library I/O port.
+    Implements the :class:`PortLike` interface.
+    Parameters
+    ----------
+    direction : :class:`Direction` or :class:`str`
+        Set of allowed buffer directions. A string is converted to a :class:`Direction` first.
+        If equal to :attr:`~Direction.Input` or :attr:`~Direction.Output`, this port can only be
+        used with buffers of matching direction. If equal to :attr:`~Direction.Bidir`, this port
+        can be used with buffers of any direction.
+    width : :class:`int`
+        Width of the port. The width of each of the attributes :py:`i`, :py:`o`, :py:`oe` (whenever
+        present) equals :py:`width`.
+    invert : :class:`bool` or iterable of :class:`bool`
+        Polarity inversion. If the value is a simple :class:`bool`, it specifies inversion for
+        the entire port. If the value is an iterable of :class:`bool`, the iterable must have the
+        same length as the width of :py:`p` and :py:`n`, and the inversion is specified for
+        individual wires.
+    name : :class:`str` or :py:`None`
+        Name of the port. This name is only used to derive the names of the input, output, and
+        output enable signals.
+    src_loc_at : :class:`int`
+        :ref:`Source location <lang-srcloc>`. Used to infer :py:`name` if not specified.
+    Attributes
+    ----------
+    i : :class:`Signal`
+        Input signal. Present if :py:`direction in (Input, Bidir)`.
+    o : :class:`Signal`
+        Ouptut signal. Present if :py:`direction in (Output, Bidir)`.
+    oe : :class:`Signal`
+        Output enable signal. Present if :py:`direction in (Output, Bidir)`.
+    invert : :class:`tuple` of :class:`bool`
+        The :py:`invert` parameter, normalized to specify polarity inversion per-wire.
+    direction : :class:`Direction`
+        The :py:`direction` parameter, normalized to the :class:`Direction` enumeration.
+    """
+    def __init__(self, direction: str | Direction, width: int, *, invert: bool | Iterable[bool] = ..., name: Optional[str] = ..., src_loc_at: int = ...) -> None:
+        ...
+
+    @property
+    def i(self) -> Signal:
+        ...
+
+    @property
+    def o(self) -> Signal:
+        ...
+
+    @property
+    def oe(self) -> Signal:
+        ...
+
+    @property
+    def invert(self) -> tuple[bool, ...]:
+        ...
+
+    @property
+    def direction(self) -> Direction:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+    def __getitem__(self, key: int | slice) -> SimulationPort:
+        ...
+
+    def __invert__(self) -> SimulationPort:
+        ...
+
+    def __add__(self, other) -> SimulationPort:
         ...
 
     def __repr__(self) -> str:

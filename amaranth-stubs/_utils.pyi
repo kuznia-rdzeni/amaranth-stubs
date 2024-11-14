@@ -19,9 +19,6 @@ def final(cls):
 def deprecated(message, stacklevel=...): # -> (f: Unknown) -> _Wrapped[..., Unknown, (*args: Unknown, **kwargs: Unknown), Unknown]:
     ...
 
-def extend(cls): # -> (f: Unknown) -> None:
-    ...
-
 def get_linter_options(filename): # -> dict[str, str] | dict[Unknown, Unknown]:
     ...
 

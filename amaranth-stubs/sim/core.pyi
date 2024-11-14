@@ -58,7 +58,7 @@ class Simulator:
         """Run the simulation until it adva"""
         ...
     
-    def write_vcd(self, vcd_file, gtkw_file=..., *, traces=...): # -> _GeneratorContextManager[None]:
+    def write_vcd(self, vcd_file, gtkw_file=..., *, traces=..., fs_per_delta=...): # -> _GeneratorContextManager[None]:
         """Write waveforms to a Value Chang"""
         ...
     

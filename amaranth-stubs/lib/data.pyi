@@ -205,7 +205,12 @@ class View(ValueCastable, Generic[_T_ShapeCastable]):
     
     def __getattr__(self, name: str):  # having a defined type hard to work with
         ...
-    
+   
+    def __len__(self) -> int:
+        ...
+
+    def __eq__(self, other) -> bool:
+        ...
 
 
 class _AggregateMeta(ShapeCastable[Self], type):
@@ -242,6 +247,9 @@ class Const(ValueCastable, Generic[_T_ShapeCastable]):
         ...
 
     def __getattr__(self, name: str) -> Any:
+        ...
+
+    def __len__(self) -> int:
         ...
 
     def __eq__(self, other) -> bool:

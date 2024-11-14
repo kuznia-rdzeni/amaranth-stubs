@@ -3,7 +3,7 @@ from ._ast import Value, ValueCastable, ValueLike
 from ._ast import Const, C, Mux, Cat, Array, Signal, ClockSignal, ResetSignal, IOValue, IOPort
 from ._dsl import SyntaxError, SyntaxWarning, Module
 from ._cd import DomainError, ClockDomain
-from ._ir import UnusedElaboratable, Elaboratable, DriverConflict, Fragment, Instance
+from ._ir import AlreadyElaborated, UnusedElaboratable, Elaboratable, DriverConflict, Fragment, Instance, IOBufferInstance
 from ._mem import MemoryData, MemoryInstance, Memory, ReadPort, WritePort, DummyPort
 from .rec import Record
 from ._xfrm import DomainRenamer, ResetInserter, EnableInserter
@@ -20,7 +20,7 @@ __all__ = [
     # _cd
     "DomainError", "ClockDomain",
     # _ir
-    "UnusedElaboratable", "Elaboratable", "DriverConflict", "Fragment", "Instance",
+    "AlreadyElaborated", "UnusedElaboratable", "Elaboratable", "DriverConflict", "Fragment", "Instance", "IOBufferInstance",
     # _mem
     "MemoryData", "MemoryInstance", "Memory", "ReadPort", "WritePort", "DummyPort",
     # _rec

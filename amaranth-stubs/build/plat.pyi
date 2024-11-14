@@ -43,7 +43,10 @@ class Platform(ResourceManager, metaclass=ABCMeta):
     
     def prepare(self, elaboratable, name=..., **kwargs):
         ...
-    
+
+    def iter_port_constraints_bits(self):
+        ...
+
     @abstractmethod
     def toolchain_prepare(self, fragment, name, **kwargs):
         """
