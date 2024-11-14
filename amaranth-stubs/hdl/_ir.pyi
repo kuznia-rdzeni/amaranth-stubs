@@ -19,7 +19,7 @@ class Elaboratable(_unused.MustUse):
     ...
 
 
-class DriverConflict(UserWarning):
+class DriverConflict(Exception):
     ...
 
 
