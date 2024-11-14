@@ -127,6 +127,24 @@ class SimulatorContext:
     @contextmanager
     def critical(self):
         ...
+    
+    @overload
+    def get(self, expr: Value) -> int: ...
+
+    @overload
+    def get(self, expr: ValueCastable) -> Any: ...
+
+    def get(self, expr: Value | ValueCastable) -> Any:
+        ...
+
+    @overload
+    def set(self, expr: Value, value: int) -> None: ...
+
+    @overload
+    def set(self, expr: ValueCastable, value: Any) -> None: ...
+
+    def set(self, expr: Value | ValueCastable, value: Any) -> None:
+        ...
 
 
 class ProcessContext(SimulatorContext):

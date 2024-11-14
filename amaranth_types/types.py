@@ -22,7 +22,6 @@ from amaranth.lib.wiring import Flow, Member
 from typing import Sequence
 from amaranth.hdl import IOValue, ShapeCastable, ValueCastable
 from amaranth.lib.data import Layout
-from amaranth.sim._async import ProcessContext, TestbenchContext
 from amaranth.sim._pycoro import Command
 
 if TYPE_CHECKING:
@@ -38,7 +37,6 @@ __all__ = [
     "LayoutLike",
     "SwitchKey",
     "SrcLoc",
-    "AnySimulatorContext",
     "TestGenerator",
     "TestCoroutine",
     "_ModuleBuilderDomainsLike",
@@ -61,7 +59,6 @@ ShapeLike: TypeAlias = Shape | ShapeCastable | int | range | type[Enum]
 StatementLike: TypeAlias = Union["Statement", Iterable["StatementLike"]]
 SwitchKey: TypeAlias = str | int | Enum
 SrcLoc: TypeAlias = tuple[str, int]
-AnySimulatorContext: TypeAlias = ProcessContext | TestbenchContext
 TestGenerator: TypeAlias = Generator[Union[Command, Value, "Statement", None], Any, T]
 TestCoroutine: TypeAlias = Coroutine[Any, Any, T]
 
