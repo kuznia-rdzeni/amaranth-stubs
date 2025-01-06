@@ -13,7 +13,7 @@ from amaranth_types import ShapeLike, ValueLike
 __all__ = ["Field", "Layout", "StructLayout", "UnionLayout", "ArrayLayout", "FlexibleLayout", "View", "Const", "Struct", "Union"]
 
 
-_T_ShapeCastable = TypeVar("_T_ShapeCastable", bound=ShapeCastable, covariant=True)
+_T_ShapeLike = TypeVar("_T_ShapeLike", bound=ShapeLike, covariant=True)
 
 
 class Field:
@@ -42,8 +42,8 @@ class Field:
 
 class Layout(ShapeCastable[View[Self]], metaclass=ABCMeta):
     @staticmethod
-    def cast(obj: ShapeCastable) -> Layout:
-        """Cast a shape-castable object to a layout."""
+    def cast(obj: ShapeLike) -> Layout:
+        """Cast a shape-like object to a layout."""
         ...
     
     @abstractmethod
@@ -186,15 +186,15 @@ class FlexibleLayout(Layout):
     
 
 
-class View(ValueCastable, Generic[_T_ShapeCastable]):
-    def __init__(self, layout: _T_ShapeCastable, target: ValueLike) -> None:
+class View(ValueCastable, Generic[_T_ShapeLike]):
+    def __init__(self, layout: _T_ShapeLike, target: ValueLike) -> None:
         ...
     
     @ValueCastable.lowermethod
     def as_value(self) -> Value:
         ...
     
-    def shape(self) -> _T_ShapeCastable:
+    def shape(self) -> _T_ShapeLike:
         ...
 
     def eq(self, other: ValueLike) -> Assign:
@@ -230,11 +230,11 @@ class _AggregateMeta(ShapeCastable[Self], type):
         ...
 
 
-class Const(ValueCastable, Generic[_T_ShapeCastable]):
-    def __init__(self, layout: _T_ShapeCastable, target: int) -> None:
+class Const(ValueCastable, Generic[_T_ShapeLike]):
+    def __init__(self, layout: _T_ShapeLike, target: int) -> None:
         ...
 
-    def shape(self) -> _T_ShapeCastable:
+    def shape(self) -> _T_ShapeLike:
         ...
 
     def as_bits(self) -> int:
