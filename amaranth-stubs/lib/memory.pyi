@@ -7,7 +7,7 @@ from collections.abc import Iterable
 
 from amaranth.hdl import MemoryInstance, Value, ValueCastable
 
-from amaranth_types.types import ShapeCastable, ShapeLike, ValueLike
+from amaranth_types.types import ShapeCastable, ShapeLike, FlatShapeLike, ValueLike, FlatValueLike
 from ..hdl import MemoryData, Signal
 from . import wiring
 
@@ -16,6 +16,7 @@ __all__ = ["Memory", "ReadPort", "WritePort"]
 
 _T_ValueOrValueCastable = TypeVar("_T_ValueOrValueCastable", bound=Value | ValueCastable, covariant=True)
 _T_ShapeLike = TypeVar("_T_ShapeLike", bound=ShapeLike, covariant=True)
+_T_FlatShapeLike = TypeVar("_T_FlatShapeLike", bound=FlatShapeLike, covariant=True)
 
 
 class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
@@ -59,7 +60,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         ...
 
     @overload
-    def __init__(self: Memory[_T_ShapeLike, Value], data: None = ..., *, shape: _T_ShapeLike = ..., depth: int = ..., init: Iterable[ValueLike] = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
+    def __init__(self: Memory[_T_FlatShapeLike, Value], data: None = ..., *, shape: _T_FlatShapeLike = ..., depth: int = ..., init: Iterable[ValueLike] = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
         ...
 
     @overload

@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, MutableMapping, MutableSequence, MutableSet
 from typing import Any, Generic, Iterable, Iterator, Mapping, NoReturn, Optional, Sequence, TypeVar, final, overload
 from enum import Enum, EnumMeta
-from amaranth_types import ValueLike, ShapeLike, StatementLike
+from amaranth_types import ValueLike, FlatValueLike, ShapeLike, FlatShapeLike, StatementLike
 from amaranth.lib.data import View
 from amaranth_types.types import IOValueLike
 
@@ -500,7 +500,7 @@ class _SignalMeta(ABCMeta):
         ...
     
     @overload
-    def __call__(cls, shape: ShapeLike = ..., src_loc_at: int = ..., **kwargs) -> Signal:
+    def __call__(cls, shape: FlatShapeLike = ..., src_loc_at: int = ..., **kwargs) -> Signal:
         ...
     
     def __call__(cls, shape: ShapeLike = ..., src_loc_at: int = ..., **kwargs):
@@ -521,7 +521,7 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
 
     @overload
     @staticmethod
-    def like(other: ValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] =..., src_loc_at=..., **kwargs) -> Signal:
+    def like(other: FlatValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] =..., src_loc_at=..., **kwargs) -> Signal:
         ...
 
     @staticmethod

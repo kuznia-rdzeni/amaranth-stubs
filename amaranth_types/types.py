@@ -32,7 +32,9 @@ if TYPE_CHECKING:
 __all__ = [
     "FragmentLike",
     "ValueLike",
+    "FlatValueLike",
     "ShapeLike",
+    "FlatShapeLike",
     "StatementLike",
     "LayoutLike",
     "SwitchKey",
@@ -53,9 +55,11 @@ P = ParamSpec("P")
 
 # Types representing Amaranth concepts
 FragmentLike: TypeAlias = Fragment | Elaboratable
-ValueLike: TypeAlias = Value | int | Enum | ValueCastable
+FlatValueLike: TypeAlias = Value | int | Enum
+ValueLike: TypeAlias = FlatValueLike | ValueCastable
 IOValueLike: TypeAlias = IOValue | Value
-ShapeLike: TypeAlias = Shape | ShapeCastable | int | range | type[Enum]
+FlatShapeLike: TypeAlias = Shape | int | range | type[Enum]
+ShapeLike: TypeAlias = FlatShapeLike | ShapeCastable
 StatementLike: TypeAlias = Union["Statement", Iterable["StatementLike"]]
 SwitchKey: TypeAlias = str | int | Enum
 SrcLoc: TypeAlias = tuple[str, int]
