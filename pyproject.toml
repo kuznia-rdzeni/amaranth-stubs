@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "amaranth-stubs"
-version = "2024.11.14.dev0"
+dynamic = ["version"]
 dependencies = [
     "amaranth == 0.5.3"
 ]
@@ -16,6 +20,8 @@ classifiers = [
 dev = [
     "pyright == 1.1.332"
 ]
+
+[tool.setuptools_scm]
 
 [tool.pyright]
 include = ["amaranth-stubs", "amaranth_types"]
