@@ -56,7 +56,7 @@ Out = Flow.Out
 In = Flow.In
 
 @final
-class Member(Generic[_T_Signature]):
+class Member:
     """Description of a signature member.
 
     This class is a discriminated union: its instances describe either a `port member` or
@@ -75,7 +75,7 @@ class Member(Generic[_T_Signature]):
     Although instances can be created directly, most often they will be created through
     :data:`In` and :data:`Out`, e.g. :pc:`In(unsigned(1))` or :pc:`Out(stream.Signature(RGBPixel))`.
     """
-    def __init__(self, flow: Flow, description: _T_Signature | ShapeLike, *, reset=..., _dimensions=...) -> None:
+    def __init__(self, flow: Flow, description: AbstractSignature | ShapeLike, *, reset=..., _dimensions=...) -> None:
         ...
     
     def flip(self) -> Member:
@@ -178,7 +178,7 @@ class Member(Generic[_T_Signature]):
         ...
     
     @property
-    def signature(self) -> _T_Signature:
+    def signature(self) -> AbstractSignature:
         """Signature of a signature member.
 
         Returns
