@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "amaranth-stubs"
 dynamic = ["version"]
+readme = "README.md"
 dependencies = [
     "amaranth == 0.5.4"
 ]
