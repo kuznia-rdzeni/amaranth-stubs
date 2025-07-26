@@ -30,6 +30,7 @@ __all__: list[str]  = [
 T = TypeVar("T")
 U = TypeVar("U")
 _T_ShapeCastable = TypeVar("_T_ShapeCastable", bound=ShapeCastable, covariant=True)
+_T_ValueOrValueCastable = TypeVar("_T_ValueOrValueCastable", bound=Value | ValueCastable, covariant=True)
 Flattenable = T | Iterable[Flattenable[T]]
 SwitchKey = str | int | Enum
 
@@ -496,6 +497,10 @@ class Repl(Value):
 
 class _SignalMeta(ABCMeta):
     @overload
+    def __call__(cls, shape: View[_T_ShapeCastable, _T_ValueOrValueCastable], src_loc_at: int = ..., **kwargs) -> View[_T_ShapeCastable, _T_ValueOrValueCastable]:
+        ...
+
+    @overload
     def __call__(cls, shape: ShapeCastable[T], src_loc_at: int = ..., **kwargs) -> T:
         ...
     
@@ -516,7 +521,7 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
 
     @overload
     @staticmethod
-    def like(other: View[_T_ShapeCastable], *, name: Optional[str] = ..., name_suffix: Optional[str] =..., src_loc_at=..., **kwargs) -> View[_T_ShapeCastable]:
+    def like(other: View[_T_ShapeCastable, _T_ValueOrValueCastable], *, name: Optional[str] = ..., name_suffix: Optional[str] =..., src_loc_at=..., **kwargs) -> View[_T_ShapeCastable, _T_ValueOrValueCastable]:
         ...
 
     @overload
@@ -623,10 +628,9 @@ class ArrayProxy(Value):
     
     def __repr__(self) -> str:
         ...
-    
 
 
-class ValueCastable:
+class ValueCastable(Generic[_T_ValueOrValueCastable]):
     """Base class for classes which can"""
     def __new__(cls, *args, **kwargs): # -> Self@ValueCastable:
         ...
@@ -637,7 +641,7 @@ class ValueCastable:
         ...
 
     @abstractmethod
-    def as_value(self) -> Value:
+    def as_value(self) -> _T_ValueOrValueCastable:
         ...
 
     @abstractmethod
