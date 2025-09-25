@@ -352,6 +352,14 @@ class Buffer(wiring.Component):
 
         def __repr__(self) -> str:
             ...
+    @property
+    def i(self) -> Signal: ...
+
+    @property
+    def o(self) -> Signal: ...
+
+    @property
+    def oe(self) -> Signal: ...
 
     @property
     def signature(self) -> Signature:
@@ -447,6 +455,15 @@ class FFBuffer(wiring.Component):
             raise ValueError(f"Input port cannot be used with {self.direction.name} buffer")
         if port.direction is Direction.Output and self.direction is not Direction.Output:
             raise ValueError(f"Output port cannot be used with {self.direction.name} buffer")
+
+    @property
+    def i(self) -> Signal: ...
+
+    @property
+    def o(self) -> Signal: ...
+
+    @property
+    def oe(self) -> Signal: ...
 
     @property
     def port(self) -> PortLike:

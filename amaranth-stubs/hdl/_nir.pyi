@@ -893,9 +893,26 @@ class IOBuffer(Cell):
     o: Value or None
     oe: Net or None
     """
+
+    @property
+    def port(self) -> IOValue:
+        ...
+
+    @property
+    def dir(self) -> IODirection:
+        ...
+
+    @property
+    def o(self) -> Value | None:
+        ...
+
+    @property
+    def oe(self) -> Net | None:
+        ...
+
     def __init__(self, module_idx, *, port, dir, o=..., oe=..., src_loc) -> None:
         ...
-    
+
     def input_nets(self):
         ...
     
