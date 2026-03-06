@@ -7,7 +7,7 @@ name = "amaranth-stubs"
 dynamic = ["version"]
 readme = "README.md"
 dependencies = [
-    "amaranth == 0.5.4"
+    "amaranth ~= 0.5.4"
 ]
 requires-python = ">=3.11"
 classifiers = [
