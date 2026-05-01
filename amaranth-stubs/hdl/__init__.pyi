@@ -8,9 +8,9 @@ from ._dsl import Module
 from ._cd import DomainError, ClockDomain
 from ._ir import AlreadyElaborated, UnusedElaboratable, Elaboratable, DriverConflict, Fragment
 from ._ir import Instance, IOBufferInstance
-from ._mem import MemoryData, MemoryInstance
+from ._mem import MemoryData, MemoryInstance, Memory, ReadPort, WritePort, DummyPort
 from ._nir import CombinationalCycle
-from ._time import Period
+from ._rec import Record
 from ._xfrm import DomainRenamer, ResetInserter, EnableInserter
 
 
@@ -32,9 +32,9 @@ __all__ = [
     # _nir
     "CombinationalCycle",
     # _mem
-    "MemoryData", "MemoryInstance",
-    # _time
-    "Period",
+    "MemoryData", "MemoryInstance", "Memory", "ReadPort", "WritePort", "DummyPort",
+    # _rec
+    "Record",
     # _xfrm
     "DomainRenamer", "ResetInserter", "EnableInserter",
 ]
