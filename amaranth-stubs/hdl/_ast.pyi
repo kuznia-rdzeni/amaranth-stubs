@@ -79,13 +79,10 @@ class Shape:
         ...
 
     @property
-    def signed(self) -> int:
+    def signed(self) -> bool:
         ...
 
     def __init__(self, width: int =..., signed: bool =...) -> None:
-        ...
-    
-    def __iter__(self) -> Iterator[int | bool]:
         ...
     
     @staticmethod
@@ -103,11 +100,11 @@ class Shape:
     
 
 
-def unsigned(width) -> Shape:
+def unsigned(width: int) -> Shape:
     """Shorthand for ``Shape(width, sig"""
     ...
 
-def signed(width) -> Shape:
+def signed(width: int) -> Shape:
     """Shorthand for ``Shape(width, sig"""
     ...
 
