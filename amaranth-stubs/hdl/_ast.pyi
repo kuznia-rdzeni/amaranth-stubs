@@ -530,15 +530,19 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
     def shape(self) -> Shape:
         ...
 
+    @property
     def init(self) -> int:
         ...
 
+    @property
     def reset_less(self) -> bool:
         ...
 
+    @property
     def attrs(self) -> dict:
         ...
 
+    @property
     def decoder(self) -> type[Enum] | Callable[[int], str]:
         ...
     
