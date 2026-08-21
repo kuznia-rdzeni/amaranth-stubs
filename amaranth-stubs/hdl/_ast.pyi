@@ -56,7 +56,7 @@ class ShapeCastable(Generic[U]):
     def __init_subclass__(cls, **kwargs) -> None:
         ...
 
-    def as_shape(self, *args, **kwargs) -> Shape:
+    def as_shape(self, *args, **kwargs) -> ShapeLike:
         ...
 
     def __call__(self, target: ValueLike) -> U:
@@ -657,7 +657,7 @@ class ValueCastable:
         ...
 
     @abstractmethod
-    def as_value(self) -> Value:
+    def as_value(self) -> ValueLike:
         ...
 
     @abstractmethod
