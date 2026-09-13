@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from abc import ABCMeta, abstractmethod
 
 __all__ = ["BuildPlan", "BuildProducts", "LocalBuildProducts", "RemoteSSHBuildProducts"]
+
 class BuildPlan:
     def __init__(self, script) -> None:
         """A build plan.
@@ -16,31 +17,31 @@ class BuildPlan:
             The base name (without extension) of the script that will be executed.
         """
         ...
-    
-    def add_file(self, filename, content): # -> None:
+
+    def add_file(self, filename, content):  # -> None:
         """
         Add ``content``, which can be a :class:`str`` or :class:`bytes`, to the build plan
         as ``filename``. The file name can be a relative path with directories separated by
         forward slashes (``/``).
         """
         ...
-    
-    def digest(self, size=...): # -> bytes:
+
+    def digest(self, size=...):  # -> bytes:
         """
         Compute a `digest`, a short byte sequence deterministically and uniquely identifying
         this build plan.
         """
         ...
-    
-    def archive(self, file): # -> None:
+
+    def archive(self, file):  # -> None:
         """
         Archive files from the build plan into ``file``, which can be either a filename, or
         a file-like object. The produced archive is deterministic: exact same files will
         always produce exact same archive.
         """
         ...
-    
-    def execute_local(self, root=..., *, run_script=...): # -> LocalBuildProducts:
+
+    def execute_local(self, root=..., *, run_script=...):  # -> LocalBuildProducts:
         """
         Execute build plan using the local strategy. Files from the build plan are placed in
         the build root directory ``root``, and, if ``run_script`` is ``True``, the script
@@ -50,8 +51,8 @@ class BuildPlan:
         Returns :class:`LocalBuildProducts`.
         """
         ...
-    
-    def execute_remote_ssh(self, *, connect_to=..., root, run_script=...): # -> RemoteSSHBuildProducts:
+
+    def execute_remote_ssh(self, *, connect_to=..., root, run_script=...):  # -> RemoteSSHBuildProducts:
         """
         Execute build plan using the remote SSH strategy. Files from the build
         plan are transferred via SFTP to the directory ``root`` on a  remote
@@ -68,27 +69,25 @@ class BuildPlan:
         Returns :class:`RemoteSSHBuildProducts`.
         """
         ...
-    
-    def execute(self): # -> LocalBuildProducts:
+
+    def execute(self):  # -> LocalBuildProducts:
         """
         Execute build plan using the default strategy. Use one of the ``execute_*`` methods
         explicitly to have more control over the strategy.
         """
         ...
-    
-
 
 class BuildProducts(metaclass=ABCMeta):
     @abstractmethod
-    def get(self, filename, mode=...): # -> None:
+    def get(self, filename, mode=...):  # -> None:
         """
         Extract ``filename`` from build products, and return it as a :class:`bytes` (if ``mode``
         is ``"b"``) or a :class:`str` (if ``mode`` is ``"t"``).
         """
         ...
-    
+
     @contextmanager
-    def extract(self, *filenames): # -> Generator[Unknown | list[Unknown] | None, Unknown, Unknown]:
+    def extract(self, *filenames):  # -> Generator[Unknown | list[Unknown] | None, Unknown, Unknown]:
         """
         Extract ``filenames`` from build products, place them in an OS-specific temporary file
         location, with the extension preserved, and delete them afterwards. This method is used
@@ -99,24 +98,13 @@ class BuildProducts(metaclass=ABCMeta):
                 subprocess.check_call(["program", "-c", config_filename, bitstream_filename])
         """
         ...
-    
-
 
 class LocalBuildProducts(BuildProducts):
-    def __init__(self, root) -> None:
+    def __init__(self, root) -> None: ...
+    def get(self, filename, mode=...):  # -> Any:
         ...
-    
-    def get(self, filename, mode=...): # -> Any:
-        ...
-    
-
 
 class RemoteSSHBuildProducts(BuildProducts):
-    def __init__(self, connect_to, root) -> None:
+    def __init__(self, connect_to, root) -> None: ...
+    def get(self, filename, mode=...):  # -> str | bytes:
         ...
-    
-    def get(self, filename, mode=...): # -> str | bytes:
-        ...
-    
-
-

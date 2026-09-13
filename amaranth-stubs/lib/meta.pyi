@@ -7,21 +7,19 @@ from typing import Generic, TypeVar
 
 __all__ = ["InvalidSchema", "InvalidAnnotation", "Annotation"]
 
-
 _T = TypeVar("_T")
-
 
 class InvalidSchema(Exception):
     """Exception raised when a subclass of :class:`Annotation` is defined with a non-conformant
     :data:`~Annotation.schema`."""
-    ...
 
+    ...
 
 class InvalidAnnotation(Exception):
     """Exception raised by :meth:`Annotation.validate` when the JSON representation of
     an annotation does not conform to its schema."""
-    ...
 
+    ...
 
 class Annotation(Generic[_T], metaclass=ABCMeta):
     """Interface annotation.
@@ -32,6 +30,7 @@ class Annotation(Generic[_T], metaclass=ABCMeta):
     Annotations have a JSON representation whose structure is defined by the `JSON Schema`_
     language.
     """
+
     schema: dict = ...
     def __init_subclass__(cls, **kwargs) -> None:
         """
@@ -46,7 +45,7 @@ class Annotation(Generic[_T], metaclass=ABCMeta):
             specific to :class:`Annotation` schemas.
         """
         ...
-    
+
     @property
     @abstractmethod
     def origin(self) -> _T:
@@ -55,7 +54,7 @@ class Annotation(Generic[_T], metaclass=ABCMeta):
         Subclasses of :class:`Annotation` must implement this property.
         """
         ...
-    
+
     @abstractmethod
     def as_json(self) -> dict:
         """Convert to a JSON representation.
@@ -72,7 +71,7 @@ class Annotation(Generic[_T], metaclass=ABCMeta):
             (:class:`dict`, :class:`list`, :class:`str`, :class:`int`, :class:`bool`).
         """
         ...
-    
+
     @classmethod
     def validate(cls, instance: dict) -> None:
         """Validate a JSON representation against :attr:`schema`.
@@ -89,9 +88,5 @@ class Annotation(Generic[_T], metaclass=ABCMeta):
             If :py:`instance` doesn't conform to :attr:`schema`.
         """
         ...
-    
-    def __repr__(self) -> str:
-        ...
-    
 
-
+    def __repr__(self) -> str: ...

@@ -21,6 +21,7 @@ class Flow(enum.Enum):
     """Direction of data flow. This enumeration has two values, :attr:`Out` and :attr:`In`,
     the meaning of which depends on the context in which they are used.
     """
+
     Out = "out"
     In = "in"
     def flip(self) -> Flow:
@@ -32,7 +33,7 @@ class Flow(enum.Enum):
             :attr:`In` if called as :pc:`Out.flip()`; :attr:`Out` if called as :pc:`In.flip()`.
         """
         ...
-    
+
     def __call__(self, description: AbstractSignature | ShapeLike, *, reset=...) -> Member:
         """Create a :class:`Member` with this data flow and the provided description and
         reset value.
@@ -43,14 +44,9 @@ class Flow(enum.Enum):
             :pc:`Member(self, description, reset=reset)`
         """
         ...
-    
-    def __repr__(self) -> Literal['Out', 'In']:
-        ...
-    
-    def __str__(self) -> str:
-        ...
-    
 
+    def __repr__(self) -> Literal["Out", "In"]: ...
+    def __str__(self) -> str: ...
 
 Out = Flow.Out
 In = Flow.In
@@ -75,9 +71,9 @@ class Member:
     Although instances can be created directly, most often they will be created through
     :data:`In` and :data:`Out`, e.g. :pc:`In(unsigned(1))` or :pc:`Out(stream.Signature(RGBPixel))`.
     """
-    def __init__(self, flow: Flow, description: AbstractSignature | ShapeLike, *, reset=..., _dimensions=...) -> None:
-        ...
-    
+    def __init__(
+        self, flow: Flow, description: AbstractSignature | ShapeLike, *, reset=..., _dimensions=...
+    ) -> None: ...
     def flip(self) -> Member:
         """Flip the data flow of this member.
 
@@ -88,7 +84,7 @@ class Member:
             to :pc:`self` other than that.
         """
         ...
-    
+
     def array(self, *dimensions) -> Member:
         """Add array dimensions to this member.
 
@@ -110,7 +106,7 @@ class Member:
             identical to :pc:`self` other than that.
         """
         ...
-    
+
     @property
     def flow(self) -> Flow:
         """Data flow of this member.
@@ -120,7 +116,7 @@ class Member:
         :class:`Flow`
         """
         ...
-    
+
     @property
     def is_port(self) -> bool:
         """Whether this is a description of a port member.
@@ -132,7 +128,7 @@ class Member:
             :pc:`False` if this is a description of a signature member.
         """
         ...
-    
+
     @property
     def is_signature(self) -> bool:
         """Whether this is a description of a signature member.
@@ -144,7 +140,7 @@ class Member:
             :pc:`False` if this is a description of a port member.
         """
         ...
-    
+
     @property
     def shape(self) -> ShapeLike:
         """Shape of a port member.
@@ -160,9 +156,9 @@ class Member:
             If :pc:`self` describes a signature member.
         """
         ...
-    
+
     @property
-    def reset(self): # -> None:
+    def reset(self):  # -> None:
         """Reset value of a port member.
 
         Returns
@@ -176,7 +172,7 @@ class Member:
             If :pc:`self` describes a signature member.
         """
         ...
-    
+
     @property
     def signature(self) -> AbstractSignature:
         """Signature of a signature member.
@@ -192,7 +188,7 @@ class Member:
             If :pc:`self` describes a port member.
         """
         ...
-    
+
     @property
     def dimensions(self) -> tuple[int, ...]:
         """Array dimensions.
@@ -206,14 +202,9 @@ class Member:
             Dimensions, if any, of this member, from most to least major.
         """
         ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-    def __repr__(self) -> str:
-        ...
-    
 
+    def __eq__(self, other) -> bool: ...
+    def __repr__(self) -> str: ...
 
 @final
 class SignatureError(Exception):
@@ -223,8 +214,8 @@ class SignatureError(Exception):
     Other exceptions, such as :exc:`TypeError` or :exc:`NameError`, will still be raised where
     appropriate.
     """
-    ...
 
+    ...
 
 @final
 class SignatureMembers(Mapping[str, Member]):
@@ -246,9 +237,7 @@ class SignatureMembers(Mapping[str, Member]):
     (signals and interface objects) by creating them from their descriptions. The created mapping
     can be used to populate an interface object.
     """
-    def __init__(self, members: Mapping[str, Member]=...) -> None:
-        ...
-    
+    def __init__(self, members: Mapping[str, Member] = ...) -> None: ...
     def flip(self) -> FlippedSignatureMembers[Self]:
         """Flip the data flow of the members in this mapping.
 
@@ -259,7 +248,7 @@ class SignatureMembers(Mapping[str, Member]):
             the members that are accessed using it.
         """
         ...
-    
+
     def __eq__(self, other) -> bool:
         """Compare the members in this and another mapping.
 
@@ -269,7 +258,7 @@ class SignatureMembers(Mapping[str, Member]):
             :pc:`True` if the mappings contain the same key-value pairs, :pc:`False` otherwise.
         """
         ...
-    
+
     def __contains__(self, name: str) -> bool:
         """Check whether a member with a given name exists.
 
@@ -278,7 +267,7 @@ class SignatureMembers(Mapping[str, Member]):
         :class:`bool`
         """
         ...
-    
+
     def __getitem__(self, name: str) -> Member:
         """Retrieves the description of a member with a given name.
 
@@ -296,7 +285,7 @@ class SignatureMembers(Mapping[str, Member]):
             If a member called :pc:`name` does not exist in the collection.
         """
         ...
-    
+
     def __setitem__(self, name: str, member: Member) -> NoReturn:
         """Stub that forbids addition of members to the collection.
 
@@ -306,7 +295,7 @@ class SignatureMembers(Mapping[str, Member]):
             Always.
         """
         ...
-    
+
     def __delitem__(self, name: str) -> NoReturn:
         """Stub that forbids removal of members from the collection.
 
@@ -316,7 +305,7 @@ class SignatureMembers(Mapping[str, Member]):
             Always.
         """
         ...
-    
+
     def __iter__(self) -> Iterator[str]:
         """Iterate through the names of members in the collection.
 
@@ -326,130 +315,8 @@ class SignatureMembers(Mapping[str, Member]):
             Names of members, in the order of insertion.
         """
         ...
-    
-    def __len__(self) -> int:
-        ...
-    
-    def flatten(self, *, path: tuple[str | int, ...]=...) -> Iterator[tuple[tuple[str | int, ...], Member]]:
-        """Recursively iterate through this collection.
 
-        .. note::
-
-            The :ref:`paths <wiring-path>` returned by this method and by :meth:`Signature.flatten`
-            differ. This method yields a single result for each :class:`Member` in the collection,
-            disregarding their dimensions:
-
-            .. doctest::
-
-                >>> sig = wiring.Signature({
-                ...     "items": In(1).array(2)
-                ... })
-                >>> list(sig.members.flatten())
-                [(('items',), In(1).array(2))]
-
-            The :meth:`Signature.flatten` method yields multiple results for such a member; see
-            the documentation for that method for an example.
-
-        Returns
-        -------
-        iterator of (:class:`tuple` of :class:`str`, :class:`Member`)
-            Pairs of :ref:`paths <wiring-path>` and the corresponding members. A path yielded by
-            this method is a tuple of strings where each item is a key through which the item may
-            be reached.
-        """
-        ...
-    
-    def create(self, *, path: tuple[str | int, ...] =..., src_loc_at: int =...) -> dict[str, Any]:
-        """Create members from their descriptions.
-
-        For each port member, this function creates a :class:`Signal` with the shape and reset
-        value taken from the member description, and the name constructed from
-        the :ref:`paths <wiring-path>` to the member (by concatenating path items with a double
-        underscore, ``__``).
-
-        For each signature member, this function calls :meth:`Signature.create` for that signature.
-        The resulting object can have any type if a :class:`Signature` subclass overrides
-        the :class:`create` method.
-
-        If the member description includes dimensions, in each case, instead of a single member,
-        a :class:`list` of members is created for each dimension. (That is, for a single dimension
-        a list of members is returned, for two dimensions a list of lists is returned, and so on.)
-
-        Returns
-        -------
-        dict of :class:`str` to :ref:`value-like <lang-valuelike>` or interface object or a potentially nested list of these
-            Mapping of names to actual signature members.
-        """
-        ...
-    
-    def __repr__(self) -> str:
-        ...
-    
-
-
-@final
-class FlippedSignatureMembers(Mapping[str, Member], Generic[_T_SignatureMembers]):
-    """Mapping of signature member names to their descriptions, with the directions flipped.
-
-    Although an instance of :class:`FlippedSignatureMembers` could be created directly, it will
-    be usually created by a call to :meth:`SignatureMembers.flip`.
-
-    This container is a wrapper around :class:`SignatureMembers` that contains the same members
-    as the inner mapping, but flips their data flow when they are accessed. For example:
-
-    .. testcode::
-
-        members = wiring.SignatureMembers({"foo": Out(1)})
-
-        flipped_members = members.flip()
-        assert flipped_members["foo"].flow == In
-
-    This class implements the same methods, with the same functionality (other than the flipping of
-    the data flow), as the :class:`SignatureMembers` class; see the documentation for that class
-    for details.
-    """
-    def __init__(self, unflipped: _T_SignatureMembers) -> None:
-        ...
-    
-    def flip(self) -> _T_SignatureMembers:
-        """
-        Flips this mapping back to the original one.
-
-        Returns
-        -------
-        :class:`SignatureMembers`
-            :pc:`unflipped`
-        """
-        ...
-    
-    def __eq__(self, other) -> bool:
-        """Compare the members in this and another mapping.
-
-        Returns
-        -------
-        :class:`bool`
-            :pc:`True` if the mappings contain the same key-value pairs, :pc:`False` otherwise.
-        """
-        ...
-    
-    def __contains__(self, name: str) -> bool:
-        ...
-    
-    def __getitem__(self, name: str) -> Member:
-        ...
-    
-    def __setitem__(self, name: str, member: Member) -> NoReturn:
-        ...
-    
-    def __delitem__(self, name: str) -> NoReturn:
-        ...
-    
-    def __iter__(self) -> Iterator[str]:
-        ...
-    
-    def __len__(self) -> int:
-        ...
-    
+    def __len__(self) -> int: ...
     def flatten(self, *, path: tuple[str | int, ...] = ...) -> Iterator[tuple[tuple[str | int, ...], Member]]:
         """Recursively iterate through this collection.
 
@@ -478,8 +345,8 @@ class FlippedSignatureMembers(Mapping[str, Member], Generic[_T_SignatureMembers]
             be reached.
         """
         ...
-    
-    def create(self, *, path: tuple[str | int, ...] =..., src_loc_at: int =...) -> dict[str, Any]:
+
+    def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> dict[str, Any]:
         """Create members from their descriptions.
 
         For each port member, this function creates a :class:`Signal` with the shape and reset
@@ -501,11 +368,111 @@ class FlippedSignatureMembers(Mapping[str, Member], Generic[_T_SignatureMembers]
             Mapping of names to actual signature members.
         """
         ...
-    
-    def __repr__(self) -> str:
-        ...
-    
 
+    def __repr__(self) -> str: ...
+
+@final
+class FlippedSignatureMembers(Mapping[str, Member], Generic[_T_SignatureMembers]):
+    """Mapping of signature member names to their descriptions, with the directions flipped.
+
+    Although an instance of :class:`FlippedSignatureMembers` could be created directly, it will
+    be usually created by a call to :meth:`SignatureMembers.flip`.
+
+    This container is a wrapper around :class:`SignatureMembers` that contains the same members
+    as the inner mapping, but flips their data flow when they are accessed. For example:
+
+    .. testcode::
+
+        members = wiring.SignatureMembers({"foo": Out(1)})
+
+        flipped_members = members.flip()
+        assert flipped_members["foo"].flow == In
+
+    This class implements the same methods, with the same functionality (other than the flipping of
+    the data flow), as the :class:`SignatureMembers` class; see the documentation for that class
+    for details.
+    """
+    def __init__(self, unflipped: _T_SignatureMembers) -> None: ...
+    def flip(self) -> _T_SignatureMembers:
+        """
+        Flips this mapping back to the original one.
+
+        Returns
+        -------
+        :class:`SignatureMembers`
+            :pc:`unflipped`
+        """
+        ...
+
+    def __eq__(self, other) -> bool:
+        """Compare the members in this and another mapping.
+
+        Returns
+        -------
+        :class:`bool`
+            :pc:`True` if the mappings contain the same key-value pairs, :pc:`False` otherwise.
+        """
+        ...
+
+    def __contains__(self, name: str) -> bool: ...
+    def __getitem__(self, name: str) -> Member: ...
+    def __setitem__(self, name: str, member: Member) -> NoReturn: ...
+    def __delitem__(self, name: str) -> NoReturn: ...
+    def __iter__(self) -> Iterator[str]: ...
+    def __len__(self) -> int: ...
+    def flatten(self, *, path: tuple[str | int, ...] = ...) -> Iterator[tuple[tuple[str | int, ...], Member]]:
+        """Recursively iterate through this collection.
+
+        .. note::
+
+            The :ref:`paths <wiring-path>` returned by this method and by :meth:`Signature.flatten`
+            differ. This method yields a single result for each :class:`Member` in the collection,
+            disregarding their dimensions:
+
+            .. doctest::
+
+                >>> sig = wiring.Signature({
+                ...     "items": In(1).array(2)
+                ... })
+                >>> list(sig.members.flatten())
+                [(('items',), In(1).array(2))]
+
+            The :meth:`Signature.flatten` method yields multiple results for such a member; see
+            the documentation for that method for an example.
+
+        Returns
+        -------
+        iterator of (:class:`tuple` of :class:`str`, :class:`Member`)
+            Pairs of :ref:`paths <wiring-path>` and the corresponding members. A path yielded by
+            this method is a tuple of strings where each item is a key through which the item may
+            be reached.
+        """
+        ...
+
+    def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> dict[str, Any]:
+        """Create members from their descriptions.
+
+        For each port member, this function creates a :class:`Signal` with the shape and reset
+        value taken from the member description, and the name constructed from
+        the :ref:`paths <wiring-path>` to the member (by concatenating path items with a double
+        underscore, ``__``).
+
+        For each signature member, this function calls :meth:`Signature.create` for that signature.
+        The resulting object can have any type if a :class:`Signature` subclass overrides
+        the :class:`create` method.
+
+        If the member description includes dimensions, in each case, instead of a single member,
+        a :class:`list` of members is created for each dimension. (That is, for a single dimension
+        a list of members is returned, for two dimensions a list of lists is returned, and so on.)
+
+        Returns
+        -------
+        dict of :class:`str` to :ref:`value-like <lang-valuelike>` or interface object or a potentially nested list of these
+            Mapping of names to actual signature members.
+        """
+        ...
+
+    def __repr__(self) -> str: ...
 
 class SignatureMeta(type):
     """Metaclass for :class:`Signature` that makes :class:`FlippedSignature` its
@@ -530,7 +497,7 @@ class SignatureMeta(type):
         :class:`FlippedSignature` a subclass of :class:`Signature` or any of its subclasses.
         """
         ...
-    
+
     def __instancecheck__(cls, instance) -> bool:
         """
         Override of :pc:`isinstance(obj, Signature)`.
@@ -540,8 +507,6 @@ class SignatureMeta(type):
         :pc:`obj` is an instance of :class:`FlippedSignature`.
         """
         ...
-    
-
 
 class Signature(metaclass=SignatureMeta):
     """Description of an interface object.
@@ -561,9 +526,7 @@ class Signature(metaclass=SignatureMeta):
         :class:`Signature` objects are immutable. Classes inheriting from :class:`Signature` must
         ensure this remains the case when additional functionality is added.
     """
-    def __init__(self, members: Mapping[str, Member]) -> None:
-        ...
-    
+    def __init__(self, members: Mapping[str, Member]) -> None: ...
     def flip(self) -> FlippedSignature[Self]:
         """Flip the data flow of the members in this signature.
 
@@ -577,7 +540,7 @@ class Signature(metaclass=SignatureMeta):
             of how this proxy object works.
         """
         ...
-    
+
     @property
     def members(self) -> SignatureMembers:
         """Members in this signature.
@@ -587,7 +550,7 @@ class Signature(metaclass=SignatureMeta):
         :class:`SignatureMembers`
         """
         ...
-    
+
     def __eq__(self, other) -> bool:
         """Compare this signature with another.
 
@@ -607,7 +570,7 @@ class Signature(metaclass=SignatureMeta):
         :class:`bool`
         """
         ...
-    
+
     def flatten(self, obj) -> Iterator[tuple[tuple[str | int, ...], Flow, ValueLike]]:
         """Recursively iterate through this signature, retrieving member values from an interface
         object.
@@ -640,8 +603,8 @@ class Signature(metaclass=SignatureMeta):
             name or index (correspondingly) using which the member value was retrieved.
         """
         ...
-    
-    def is_compliant(self, obj, *, reasons: Optional[list[str]] =..., path: tuple[str, ...] =...) -> bool:
+
+    def is_compliant(self, obj, *, reasons: Optional[list[str]] = ..., path: tuple[str, ...] = ...) -> bool:
         """Check whether an object matches the description in this signature.
 
         This module places few restrictions on what an interface object may be; it does not
@@ -687,8 +650,8 @@ class Signature(metaclass=SignatureMeta):
             a detailed explanation why.
         """
         ...
-    
-    def create(self, *, path: tuple[str | int, ...]=..., src_loc_at: int =...) -> AbstractInterface[Self]:
+
+    def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> AbstractInterface[Self]:
         """Create an interface object from this signature.
 
         The default :meth:`Signature.create` implementation consists of one line:
@@ -728,13 +691,8 @@ class Signature(metaclass=SignatureMeta):
         """
         ...
 
-    def annotations(self, obj: AbstractInterface[Self], /) -> Iterable[Annotation]:
-        ...
-
-    def __repr__(self) -> str:
-        ...
-    
-
+    def annotations(self, obj: AbstractInterface[Self], /) -> Iterable[Annotation]: ...
+    def __repr__(self) -> str: ...
 
 @final
 class FlippedSignature(Generic[_T_Signature]):
@@ -784,9 +742,7 @@ class FlippedSignature(Generic[_T_Signature]):
         assert sig.is_flipped == False
         assert sig.flip().is_flipped == True
     """
-    def __init__(self, signature: _T_Signature) -> None:
-        ...
-    
+    def __init__(self, signature: _T_Signature) -> None: ...
     def flip(self) -> _T_Signature:
         """
         Flips this signature back to the original one.
@@ -797,20 +753,12 @@ class FlippedSignature(Generic[_T_Signature]):
             :pc:`unflipped`
         """
         ...
-    
+
     @property
-    def members(self) -> FlippedSignatureMembers:
-        ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-    def flatten(self, obj) -> Iterator[tuple[tuple[str | int, ...], Flow, ValueLike]]:
-        ...
-
-    def is_compliant(self, obj, *, reasons: Optional[list[str]] =..., path: tuple[str, ...] =...) -> bool:
-        ...
-
+    def members(self) -> FlippedSignatureMembers: ...
+    def __eq__(self, other) -> bool: ...
+    def flatten(self, obj) -> Iterator[tuple[tuple[str | int, ...], Flow, ValueLike]]: ...
+    def is_compliant(self, obj, *, reasons: Optional[list[str]] = ..., path: tuple[str, ...] = ...) -> bool: ...
     def __getattr__(self, name) -> Any:
         """Retrieves attribute or method :pc:`name` of the unflipped signature.
 
@@ -819,7 +767,7 @@ class FlippedSignature(Generic[_T_Signature]):
         method's :pc:`cls` argument receives the class of the *unflipped* signature, as usual.
         """
         ...
-    
+
     def __setattr__(self, name, value) -> None:
         """Assigns attribute :pc:`name` of the unflipped signature to ``value``.
 
@@ -827,7 +775,7 @@ class FlippedSignature(Generic[_T_Signature]):
         a property setter, its :pc:`self` argument receives the flipped signature.
         """
         ...
-    
+
     def __delattr__(self, name) -> None:
         """Removes attribute :pc:`name` of the unflipped signature.
 
@@ -835,14 +783,9 @@ class FlippedSignature(Generic[_T_Signature]):
         deleter, its :pc:`self` argument receives the flipped signature.
         """
         ...
-    
-    def create(self, *args, path: tuple[str | int, ...] =..., src_loc_at: int =..., **kwargs) -> FlippedInterface:
-        ...
-    
-    def __repr__(self) -> str:
-        ...
-    
 
+    def create(self, *args, path: tuple[str | int, ...] = ..., src_loc_at: int = ..., **kwargs) -> FlippedInterface: ...
+    def __repr__(self) -> str: ...
 
 class PureInterface(Generic[_T_Signature]):
     """A helper for constructing ad-hoc interfaces.
@@ -858,9 +801,10 @@ class PureInterface(Generic[_T_Signature]):
         create an interface object, but it may be used either directly or as a base class whenever
         it is convenient to do so.
     """
+
     signature: _T_Signature
 
-    def __init__(self, signature: _T_Signature, *, path: tuple[str | int, ...]=..., src_loc_at: int =...) -> None:
+    def __init__(self, signature: _T_Signature, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> None:
         """Create attributes from a signature.
 
         The sole method defined by this helper is its constructor, which only defines
@@ -883,11 +827,8 @@ class PureInterface(Generic[_T_Signature]):
             IDEs and type checkers.
         """
         ...
-    
-    def __repr__(self) -> str:
-        ...
-    
 
+    def __repr__(self) -> str: ...
 
 @final
 class FlippedInterface(Generic[_T_Signature, _T_Interface]):
@@ -935,22 +876,20 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
         assert intf.is_flipped == False
         assert wiring.flipped(intf).is_flipped == True
     """
-    def __init__(self, interface: _T_Interface) -> None:
-        ...
+    def __init__(self, interface: _T_Interface) -> None: ...
 
     # not true -- this is a property -- but required for clean typing
     signature: _T_Signature
-#    @property
-#    def signature(self) -> _T_Signature:
-#        """Signature of the flipped interface.
-#
-#        Returns
-#        -------
-#        Signature
-#            :pc:`unflipped.signature.flip()`
-#        """
-#        ...
-    
+    #    @property
+    #    def signature(self) -> _T_Signature:
+    #        """Signature of the flipped interface.
+    #
+    #        Returns
+    #        -------
+    #        Signature
+    #            :pc:`unflipped.signature.flip()`
+    #        """
+    #        ...
     def __eq__(self, other) -> bool:
         """Compare this flipped interface with another.
 
@@ -961,7 +900,7 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
             :pc:`unflipped == other_unflipped`, :pc:`False` otherwise.
         """
         ...
-    
+
     def __getattr__(self, name) -> Any:
         """Retrieves attribute or method :pc:`name` of the unflipped interface.
 
@@ -973,7 +912,7 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
            the *unflipped* interface, as usual.
         """
         ...
-    
+
     def __setattr__(self, name, value) -> None:
         """Assigns attribute :pc:`name` of the unflipped interface to ``value``.
 
@@ -984,7 +923,7 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
            interface.
         """
         ...
-    
+
     def __delattr__(self, name) -> None:
         """Removes attribute :pc:`name` of the unflipped interface.
 
@@ -992,19 +931,15 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
         deleter, its :pc:`self` argument receives the flipped interface.
         """
         ...
-    
-    def __repr__(self) -> str:
-        ...
-    
+
+    def __repr__(self) -> str: ...
+
 @overload
-def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface:
-    ...
+def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface: ...
 
 # Can't be typed nicer for now.
 @overload
-def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]:
-    ...
-
+def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]: ...
 def flipped(interface: _T_Interface) -> _T_Interface | FlippedInterface[Any, _T_Interface]:
     """
     Flip the data flow of the members of the interface object :pc:`interface`.
@@ -1022,8 +957,8 @@ def flipped(interface: _T_Interface) -> _T_Interface | FlippedInterface[Any, _T_
 class ConnectionError(Exception):
     """Exception raised when the :func:`connect` function is requested to perform an impossible,
     meaningless, or forbidden connection."""
-    ...
 
+    ...
 
 def connect(m: ModuleLike, *args: AbstractInterface, **kwargs: AbstractInterface) -> None:
     """Connect interface objects to each other.
@@ -1128,9 +1063,7 @@ class Component(Elaboratable, Generic[_T_Signature]):
         If a name conflict is detected between two variable annotations, or between a member
         and an existing attribute.
     """
-    def __init__(self, signature: Optional[_T_Signature | dict[str, Member]] = None) -> None:
-        ...
-    
+    def __init__(self, signature: Optional[_T_Signature | dict[str, Member]] = None) -> None: ...
     @property
     def signature(self) -> _T_Signature:
         """The signature of the component.
@@ -1146,30 +1079,21 @@ class Component(Elaboratable, Generic[_T_Signature]):
     @property
     def metadata(self) -> ComponentMetadata:
         """Metadata attached to the component.
-        
+
         Returns
         -------
         :class:`ComponentMetadata`
         """
         ...
 
-
 class InvalidMetadata(Exception):
     """Exception raised by :meth:`ComponentMetadata.validate` when the JSON representation of
     a component's metadata does not conform to its schema."""
 
-
 class ComponentMetadata(Annotation[Component]):
-    def __init__(self, origin: Component):
-        ...
-
+    def __init__(self, origin: Component): ...
     @property
-    def origin(self) -> Component:
-        ...
-
+    def origin(self) -> Component: ...
     @classmethod
-    def validate(cls, instance: dict) -> None:
-        ...
-
-    def as_json(self) -> dict:
-        ...
+    def validate(cls, instance: dict) -> None: ...
+    def as_json(self) -> dict: ...

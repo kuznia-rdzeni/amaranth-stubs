@@ -9,7 +9,6 @@ from ._ir import Elaboratable, Fragment
 
 __all__ = ["MemoryData", "Memory", "ReadPort", "WritePort", "DummyPort"]
 
-
 @final
 class MemoryData:
     @final
@@ -30,60 +29,28 @@ class MemoryData:
         * Each element must be an :class:`int`, and
         * Elements that are not explicitly initialized default to :py:`0`.
         """
-        def __init__(self, elems: Iterable[ValueLike], *, shape: ShapeLike, depth: int) -> None:
-            ...
-        
+        def __init__(self, elems: Iterable[ValueLike], *, shape: ShapeLike, depth: int) -> None: ...
         @property
-        def shape(self) -> ShapeLike:
-            ...
-        
-        def __getitem__(self, index: int) -> ValueLike:
-            ...
-        
-        def __setitem__(self, index: int, value: ValueLike) -> None:
-            ...
-        
-        def __delitem__(self, index: int) -> NoReturn:
-            ...
-        
-        def insert(self, index: int, value: ValueLike) -> NoReturn:
-            ...
-        
-        def __len__(self) -> int:
-            ...
-        
-        def __repr__(self) -> str:
-            ...
-        
-    
-    def __init__(self, *, shape: ShapeLike, depth: int, init: Iterable[ValueLike], src_loc_at: int = ...) -> None:
-        ...
-    
-    def freeze(self) -> None:
-        ...
-    
+        def shape(self) -> ShapeLike: ...
+        def __getitem__(self, index: int) -> ValueLike: ...
+        def __setitem__(self, index: int, value: ValueLike) -> None: ...
+        def __delitem__(self, index: int) -> NoReturn: ...
+        def insert(self, index: int, value: ValueLike) -> NoReturn: ...
+        def __len__(self) -> int: ...
+        def __repr__(self) -> str: ...
+
+    def __init__(self, *, shape: ShapeLike, depth: int, init: Iterable[ValueLike], src_loc_at: int = ...) -> None: ...
+    def freeze(self) -> None: ...
     @property
-    def shape(self) -> ShapeLike:
-        ...
-    
+    def shape(self) -> ShapeLike: ...
     @property
-    def depth(self) -> int:
-        ...
-    
+    def depth(self) -> int: ...
     @property
-    def init(self) -> MemoryData.Init:
-        ...
-    
+    def init(self) -> MemoryData.Init: ...
     @init.setter
-    def init(self, init: Iterable[ValueLike]) -> None:
-        ...
-    
-    def __repr__(self) -> str:
-        ...
-    
-    def __getitem__(self, index) -> ValueLike:
-        ...
-    
+    def init(self, init: Iterable[ValueLike]) -> None: ...
+    def __repr__(self) -> str: ...
+    def __getitem__(self, index) -> ValueLike: ...
 
 class Memory:
     """A word addressable storage.
@@ -109,43 +76,46 @@ class Memory:
     init : list of int
     attrs : dict
     """
+
     width: int
     depth: int
     attrs: dict
 
-    def __init__(self, *, width: int, depth: int, init: Optional[list[int]] = ..., name: Optional[str] = ..., attrs: dict = ..., simulate: bool = ...) -> None:
-        ...
-    
+    def __init__(
+        self,
+        *,
+        width: int,
+        depth: int,
+        init: Optional[list[int]] = ...,
+        name: Optional[str] = ...,
+        attrs: dict = ...,
+        simulate: bool = ...,
+    ) -> None: ...
     @property
-    def init(self) -> list[int]:
-        ...
-    
+    def init(self) -> list[int]: ...
     @init.setter
-    def init(self, new_init: list[int]) -> None:
-        ...
-    
+    def init(self, new_init: list[int]) -> None: ...
     def read_port(self, *, src_loc_at=..., **kwargs) -> ReadPort:
         """Get a read port.
 
         See :c"""
         ...
-    
+
     def write_port(self, *, src_loc_at=..., **kwargs) -> WritePort:
         """Get a write port.
 
         See :"""
         ...
-    
+
     def __getitem__(self, index: int) -> ArrayProxy:
         """Simulation only."""
         ...
-    
-
 
 class ReadPort(Elaboratable):
     """A memory read port.
 
     Paramet"""
+
     memory: Memory
     domain: str
     transparent: bool
@@ -153,18 +123,15 @@ class ReadPort(Elaboratable):
     data: Signal
     en: Signal | Const
 
-    def __init__(self, memory, *, domain=..., transparent=..., src_loc_at=...) -> None:
+    def __init__(self, memory, *, domain=..., transparent=..., src_loc_at=...) -> None: ...
+    def elaborate(self, platform):  # -> Instance:
         ...
-    
-    def elaborate(self, platform): # -> Instance:
-        ...
-    
-
 
 class WritePort(Elaboratable):
     """A memory write port.
 
     Parame"""
+
     memory: Memory
     domain: str
     granularity: int
@@ -172,26 +139,19 @@ class WritePort(Elaboratable):
     data: Signal
     en: Signal
 
-    def __init__(self, memory, *, domain=..., granularity=..., src_loc_at=...) -> None:
+    def __init__(self, memory, *, domain=..., granularity=..., src_loc_at=...) -> None: ...
+    def elaborate(self, platform):  # -> Instance:
         ...
-    
-    def elaborate(self, platform): # -> Instance:
-        ...
-    
-
 
 class DummyPort:
     """Dummy memory port.
 
     This por"""
-    def __init__(self, *, data_width, addr_width, domain=..., name=..., granularity=...) -> None:
-        ...
-    
+    def __init__(self, *, data_width, addr_width, domain=..., name=..., granularity=...) -> None: ...
 
 class MemoryInstance(Fragment):
     memory: Memory
     read_ports: list[ReadPort]
     write_ports: list[WritePort]
     attrs: dict
-    def __init__(self, memory: Memory, read_ports: list[ReadPort], write_ports: list[WritePort]) -> None:
-        ...
+    def __init__(self, memory: Memory, read_ports: list[ReadPort], write_ports: list[WritePort]) -> None: ...

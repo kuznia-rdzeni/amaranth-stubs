@@ -46,7 +46,7 @@ __all__ = [
     "HasElaborate",
     "AbstractInterface",
     "AbstractSignature",
-    "AbstractComponent"
+    "AbstractComponent",
 ]
 
 T = TypeVar("T")
@@ -157,9 +157,7 @@ class AbstractSignature(Protocol):
 
     def is_compliant(self, obj, *, reasons: Optional[list[str]] = ..., path: tuple[str, ...] = ...) -> bool: ...
 
-    def create(
-        self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...
-    ) -> "AbstractInterface": ...
+    def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> "AbstractInterface": ...
 
     def __repr__(self) -> str: ...
 

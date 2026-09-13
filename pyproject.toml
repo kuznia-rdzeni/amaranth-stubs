@@ -18,12 +18,29 @@ classifiers = [
 license = "BSD-3-Clause"
 license-files = [ "LICENSE" ]
 
-[project.optional-dependencies]
-dev = [
-    "pyright == 1.1.332"
+[dependency-groups]
+lint = [
+    "pyright == 1.1.393",
+    "ruff == 0.16.5"
 ]
 
 [tool.setuptools_scm]
 
 [tool.pyright]
 include = ["amaranth-stubs", "amaranth_types"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle error
+    "W",    # pycodestyle warning
+    "F",    # pyflakes
+    "PLE"   # pylint error
+]
+ignore = [
+    "F403", # star imports
+    "F405", # use of name from star imports
+    "E501"  # line too long
+]
