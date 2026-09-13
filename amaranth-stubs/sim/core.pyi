@@ -173,17 +173,79 @@ class Simulator:
     def step(self):  # -> bool:
         ...
     def advance(self):  # -> bool:
-        """Advance the simulation."""
+        """
+        Advance the simulation.
+
+        This method advances the simulation by one time step. After this method completes, all of
+        the events scheduled for the current point in time will have taken effect, and the current
+        point in time was advanced to the closest point in the future for which any events are
+        scheduled (which may be the same point in time).
+
+        The non-waiting testbenches are executed in the order they were added, and the processes
+        are executed as necessary.
+
+        Returns :py:`True` if the simulation contains any critical testbenches or processes, and
+        :py:`False` otherwise.
+        """
         ...
 
     def run(self):  # -> None:
-        """Run the simulation while any pro"""
+        """
+        Run the simulation indefinitely.
+
+        This method advances the simulation while any critical testbenches or processes continue
+        executing. It is equivalent to::
+
+            while self.advance():
+                pass
+        """
         ...
 
     def run_until(self, deadline, *, run_passive=...):  # -> None:
-        """Run the simulation until it adva"""
+        """
+        run_until(deadline)
+
+        Run the simulation until a specific point in time.
+
+        This method advances the simulation until the simulation time reaches :py:`deadline`,
+        without regard for whether there are critical testbenches or processes executing.
+
+        ..
+            This should show the code like in :meth:`run` once the code is not horrible.
+        """
         ...
 
     def write_vcd(self, vcd_file, gtkw_file=..., *, traces=..., fs_per_delta=...):  # -> _GeneratorContextManager[None]:
-        """Write waveforms to a Value Chang"""
+        """
+        write_vcd(vcd_file, gtkw_file=None, *, traces=())
+
+        Capture waveforms to a file.
+
+        This context manager captures waveforms for each signal and memory that is referenced from
+        :py:`toplevel`, as well as any additional signals or memories specified in :py:`traces`,
+        and saves them to :py:`vcd_file`. If :py:`gtkw_file` is provided, it is populated with
+        a GTKWave save file displaying :py:`traces` when opened.
+
+        Use this context manager to wrap a call to :meth:`run` or :meth:`run_until`: ::
+
+            with sim.write_vcd("simulation.vcd"):
+                sim.run()
+
+        The :py:`vcd_file` and :py:`gtkw_file` arguments accept either a :term:`python:file object`
+        or a filename. If a file object is provided, it is closed when exiting the context manager
+        (once the simulation completes or encounters an error).
+
+        The :py:`traces` argument accepts a *trace specification*, which can be one of:
+
+        * A :class:`~amaranth.hdl.ValueLike` object, such as a :class:`~amaranth.hdl.Signal`;
+        * A :class:`~amaranth.hdl.MemoryData` object or an individual row retrieved from one;
+        * A :class:`tuple` or :class:`list` containing trace specifications;
+        * A :class:`dict` associating :class:`str` names to trace specifications;
+        * An :ref:`interface object <wiring>`.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If a trace specification refers to a signal with a private name.
+        """
         ...

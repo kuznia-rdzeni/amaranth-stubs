@@ -256,7 +256,24 @@ class ShapeCastable(Generic[U]):
         ...
 
 class Shape:
-    """Bit width and signedness of a va"""
+    """
+    Bit width and signedness of a :class:`Value`.
+
+    A :class:`Shape` can be obtained by:
+
+    * constructing with explicit bit width and signedness;
+    * using the :func:`signed` and :func:`unsigned` aliases if the signedness is known upfront;
+    * casting from a variety of objects using the :meth:`cast` method.
+
+    Parameters
+    ----------
+    width : int
+        The number of bits in the representation of a value. This includes the sign bit for signed
+        values. Cannot be zero if the value is signed.
+    signed : bool
+        Whether the value is signed. Signed values use the
+        `two's complement <https://en.wikipedia.org/wiki/Two's_complement>`_ representation.
+    """
     @property
     def width(self) -> int: ...
     @property
@@ -298,11 +315,11 @@ class Shape:
     def __hash__(self) -> int: ...
 
 def unsigned(width: int) -> Shape:
-    """Shorthand for ``Shape(width, sig"""
+    """Returns :py:`Shape(width, signed=False)`."""
     ...
 
 def signed(width: int) -> Shape:
-    """Shorthand for ``Shape(width, sig"""
+    """Returns :py:`Shape(width, signed=True)`."""
     ...
 
 class Value(metaclass=ABCMeta):
@@ -348,7 +365,26 @@ class Value(metaclass=ABCMeta):
     """
     @staticmethod
     def cast(obj: ValueLike) -> Value:
-        """Converts ``obj`` to an Amaranth"""
+        """
+        Cast :py:`obj` to an Amaranth value.
+
+        Many :ref:`value-like <lang-valuelike>` objects can be cast to a value:
+
+        * a :class:`Value` instance, where the result is itself;
+        * a :class:`bool` or :class:`int` instance, where the result is :py:`Const(obj)`;
+        * an :class:`enum.IntEnum` instance, or a :class:`enum.Enum` instance whose members are
+          all integers, where the result is a :class:`Const(obj, enum_shape)` where :py:`enum_shape`
+          is a shape that can represent every member of the enumeration;
+        * a :class:`ValueCastable` instance, where the result is obtained by repeatedly calling
+          :meth:`obj.as_value() <ValueCastable.as_value>`.
+
+        Raises
+        ------
+        TypeError
+            If :py:`obj` cannot be converted to a :class:`Value`.
+        RecursionError
+            If :py:`obj` is a :class:`ValueCastable` object that casts to itself.
+        """
         ...
 
     def __init__(self, *, src_loc_at=...) -> None: ...
@@ -772,59 +808,213 @@ class Value(metaclass=ABCMeta):
         """
         ...
     def as_unsigned(self) -> Value:
-        """Conversion to unsigned."""
+        """
+        Reinterpretation as an unsigned value.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
         ...
 
     def as_signed(self) -> Value:
-        """Conversion to signed.
+        """
+        Reinterpretation as a signed value.
 
-        R"""
+        Returns
+        -------
+        :class:`Value`, :py:`signed(len(self))`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        ValueError
+            If :py:`len(self) == 0`.
+        """
         ...
 
     def bool(self) -> Value:
-        """Conversion to boolean."""
+        """
+        Conversion to boolean.
+
+        Returns the same value as :meth:`any`, but should be used where :py:`self` is semantically
+        a number.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
         ...
 
     def any(self) -> Value:
-        """Check if any bits are ``1``."""
+        """
+        Reduction OR; is any bit :py:`1`?
+
+        Performs the same operation as :meth:`bool`, but should be used where :py:`self` is
+        semantically a bit sequence.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
         ...
 
     def all(self) -> Value:
-        """Check if all bits are ``1``."""
+        """
+        Reduction AND; are all bits :py:`1`?
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
         ...
 
     def xor(self) -> Value:
-        """Compute pairwise exclusive-or of"""
+        """
+        Reduction XOR; are an odd amount of bits :py:`1`?
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
         ...
 
     def bit_select(self, offset: ValueLike, width: int) -> Value:
-        """Part-select with bit granularity"""
+        """
+        Part-select with bit granularity.
+
+        Selects a constant width, variable offset part of :py:`self`, where parts with successive
+        offsets overlap by :py:`width - 1` bits. Bits above the most significant bit of :py:`self`
+        may be selected; they are equal to zero if :py:`self` is unsigned, to :py:`self[-1]` if
+        :py:`self` is signed, and assigning to them does nothing.
+
+        When :py:`offset` is a constant integer and :py:`offset + width <= len(self)`,
+        this operation is equivalent to :py:`self[offset:offset + width]`.
+
+        Parameters
+        ----------
+        offset: :ref:`value-like <lang-valuelike>`
+            Index of the first selected bit.
+        width: :class:`int`
+            Amount of bits to select.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(width)`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`offset` is signed.
+        :exc:`TypeError`
+            If :py:`width` is negative.
+        """
         ...
 
     def word_select(self, offset: ValueLike, width: int) -> Value:
-        """Part-select with word granularit"""
+        """
+        Part-select with word granularity.
+
+        Selects a constant width, variable offset part of :py:`self`, where parts with successive
+        offsets are adjacent but do not overlap. Bits above the most significant bit of :py:`self`
+        may be selected; they are equal to zero if :py:`self` is unsigned, to :py:`self[-1]` if
+        :py:`self` is signed, and assigning to them does nothing.
+
+        When :py:`offset` is a constant integer and :py:`width:(offset + 1) * width <= len(self)`,
+        this operation is equivalent to :py:`self[offset * width:(offset + 1) * width]`.
+
+        Parameters
+        ----------
+        offset: :ref:`value-like <lang-valuelike>`
+            Index of the first selected word.
+        width: :class:`int`
+            Amount of bits to select.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(width)`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`offset` is signed.
+        :exc:`TypeError`
+            If :py:`width` is negative.
+        """
         ...
 
     def matches(self, *patterns: SwitchKey) -> Value:
-        """Pattern matching.
+        """
+        Pattern matching.
 
-        Match"""
+        Matches against a set of patterns, recognizing the same grammar as :py:`with m.Case()`.
+        The pattern syntax is described in the :ref:`language guide <lang-matchop>`.
+
+        Each of the :py:`patterns` may be a :class:`str` or a :ref:`constant-castable object
+        <lang-constcasting>`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+
+        Raises
+        ------
+        :exc:`SyntaxError`
+            If a pattern has invalid syntax.
+        """
         ...
 
     def shift_left(self, amount: int) -> Value:
-        """Shift left by constant amount."""
+        """
+        Left shift by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.shift_right(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(len(self) + amount, 0))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(max(len(self) + amount, 1))`
+            If :py:`self` is signed.
+        """
         ...
 
     def shift_right(self, amount: int) -> Value:
-        """Shift right by constant amount."""
+        """
+        Right shift by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.shift_left(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(len(self) - amount, 0))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(max(len(self) - amount, 1))`
+            If :py:`self` is signed.
+        """
         ...
 
     def rotate_left(self, amount: int) -> Value:
-        """Rotate left by constant amount."""
+        """
+        Left rotate by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.rotate_right(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
         ...
 
     def rotate_right(self, amount: int) -> Value:
-        """Rotate right by constant amount."""
+        """
+        Right rotate by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.rotate_left(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
         ...
 
     def replicate(self, count: int) -> Value:
@@ -848,15 +1038,30 @@ class Value(metaclass=ABCMeta):
         ...
 
     def eq(self, value: ValueLike) -> Assign:
-        """Assignment.
+        r"""
+        :ref:`Assignment <lang-assigns>`.
 
-        Parameters
+        Once it is placed in a domain, an assignment changes the bit pattern of :py:`self` to
+        equal :py:`value`. If the bit width of :py:`value` is less than that of :py:`self`,
+        it is zero-extended (for unsigned :py:`value`\ s) or sign-extended (for signed
+        :py:`value`\ s). If the bit width of :py:`value` is greater than that of :py:`self`,
+        it is truncated.
+
+        Returns
+        -------
+        :class:`Statement`
         """
         ...
 
     @abstractmethod
     def shape(self) -> Shape:
-        """Bit width and signedness of a va"""
+        """
+        Shape of :py:`self`.
+
+        Returns
+        -------
+        :ref:`shape-like object <lang-shapelike>`
+        """
         ...
 
     __hash__ = ...
@@ -866,7 +1071,22 @@ class _ConstMeta(ABCMeta):
 
 @final
 class Const(Value, metaclass=_ConstMeta):
-    """A constant, literal integer valu"""
+    """
+    A constant, literal integer value.
+
+    Parameters
+    ----------
+    value : int
+    shape : int or tuple or None
+        Either an integer ``width`` or a tuple ``(width, signed)`` specifying the number of bits
+        in this constant and whether it is signed (can represent negative values).
+        ``shape`` defaults to the minimum possible width and signedness of ``value``.
+
+    Attributes
+    ----------
+    width : int
+    signed : bool
+    """
 
     src_loc = ...
     @staticmethod
@@ -910,7 +1130,22 @@ class Operator(Value):
     def __repr__(self) -> str: ...
 
 def Mux(sel: ValueLike, val1: ValueLike, val0: ValueLike) -> Value:
-    """Choose between two values."""
+    """
+    Choose between two values.
+
+    Parameters
+    ----------
+    sel : Value, in
+        Selector.
+    val1 : Value, in
+    val0 : Value, in
+        Input values.
+
+    Returns
+    -------
+    Value, out
+        Output ``Value``. If ``sel`` is asserted, the Mux returns ``val1``, else ``val0``.
+    """
     ...
 
 @final
@@ -931,9 +1166,30 @@ class Part(Value):
 
 @final
 class Cat(Value):
-    """Concatenate values.
+    """
+    Concatenate values.
 
-    Form a"""
+    Form a compound ``Value`` from several smaller ones by concatenation.
+    The first argument occupies the lower bits of the result.
+    The return value can be used on either side of an assignment, that
+    is, the concatenated value can be used as an argument on the RHS or
+    as a target on the LHS. If it is used on the LHS, it must solely
+    consist of ``Signal`` s, slices of ``Signal`` s, and other concatenations
+    meeting these properties. The bit length of the return value is the sum of
+    the bit lengths of the arguments::
+
+        len(Cat(args)) == sum(len(arg) for arg in args)
+
+    Parameters
+    ----------
+    *args : Values or iterables of Values, inout
+        ``Value`` s to be concatenated.
+
+    Returns
+    -------
+    Value, inout
+        Resulting ``Value`` obtained by concatenation.
+    """
     def __init__(self, *args: Flattenable[ValueLike], src_loc_at=...) -> None:
         """Initialize self.  See help(type(self)) for accurate signature."""
         ...
@@ -969,9 +1225,6 @@ class SwitchValue(Value):
 
 @final
 class Repl(Value):
-    """Replicate a value
-
-    An input"""
     def __init__(self, value: ValueLike, count: int, *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
@@ -988,9 +1241,47 @@ class _SignalMeta(ABCMeta):
     def __call__(cls, shape: ShapeLike = ..., src_loc_at: int = ..., **kwargs): ...
 
 class Signal(Value, DUID, metaclass=_SignalMeta):
-    """A varying integer value.
+    """
+    A varying integer value.
 
-    Pa"""
+    Parameters
+    ----------
+    shape : ``Shape``-castable object or None
+        Specification for the number of bits in this ``Signal`` and its signedness (whether it
+        can represent negative values). See ``Shape.cast`` for details.
+        If not specified, ``shape`` defaults to 1-bit and non-signed.
+    name : str
+        Name hint for this signal. If ``None`` (default) the name is inferred from the variable
+        name this ``Signal`` is assigned to. If the empty string, then this ``Signal`` is treated
+        as private and is generally hidden from view.
+    init : int or integral Enum
+        Reset (synchronous) or default (combinational) value.
+        When this ``Signal`` is assigned to in synchronous context and the corresponding clock
+        domain is reset, the ``Signal`` assumes the given value. When this ``Signal`` is unassigned
+        in combinational context (due to conditional assignments not being taken), the ``Signal``
+        assumes its ``init`` value. Defaults to 0.
+    reset_less : bool
+        If ``True``, do not generate reset logic for this ``Signal`` in synchronous statements.
+        The ``init`` value is only used as a combinational default or as the initial value.
+        Defaults to ``False``.
+    attrs : dict
+        Dictionary of synthesis attributes.
+    decoder : function or Enum
+        A function converting integer signal values to human-readable strings (e.g. FSM state
+        names). If an ``Enum`` subclass is passed, it is concisely decoded using format string
+        ``"{0.name:}/{0.value:}"``, or a number if the signal value is not a member of
+        the enumeration.
+
+    Attributes
+    ----------
+    width : int
+    signed : bool
+    name : str
+    init : int
+    reset_less : bool
+    attrs : dict
+    decoder : function
+    """
     def __init__(
         self,
         shape: Optional[ShapeLike] = ...,
@@ -1011,21 +1302,16 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
         name_suffix: Optional[str] = ...,
         src_loc_at=...,
         **kwargs,
-    ) -> _T_ValueCastable:
-        """
-        Create Signal based on another.
-
-        Parameters
-        ----------
-        other : ValueLike
-            Object to base this Signal on.
-        """
-        ...
+    ) -> _T_ValueCastable: ...
     @overload
     @staticmethod
     def like(
         other: FlatValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] = ..., src_loc_at=..., **kwargs
-    ) -> Signal:
+    ) -> Signal: ...
+    @staticmethod
+    def like(
+        other: ValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] = ..., src_loc_at=..., **kwargs
+    ):
         """
         Create Signal based on another.
 
@@ -1034,12 +1320,6 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
         other : ValueLike
             Object to base this Signal on.
         """
-        ...
-    @staticmethod
-    def like(
-        other: ValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] = ..., src_loc_at=..., **kwargs
-    ):
-        """Create Signal based on another."""
         ...
 
     def shape(self) -> Shape: ...
@@ -1057,23 +1337,92 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
 
 @final
 class ClockSignal(Value):
-    """Clock signal for a clock domain."""
+    """
+    Clock signal for a clock domain.
+
+    Any ``ClockSignal`` is equivalent to ``cd.clk`` for a clock domain with the corresponding name.
+    All of these signals ultimately refer to the same signal, but they can be manipulated
+    independently of the clock domain, even before the clock domain is created.
+
+    Parameters
+    ----------
+    domain : str
+        Clock domain to obtain a clock signal for. Defaults to ``"sync"``.
+    """
     def __init__(self, domain: str = ..., *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
 
 @final
 class ResetSignal(Value):
-    """Reset signal for a clock domain."""
+    """
+    Reset signal for a clock domain.
+
+    Any ``ResetSignal`` is equivalent to ``cd.rst`` for a clock domain with the corresponding name.
+    All of these signals ultimately refer to the same signal, but they can be manipulated
+    independently of the clock domain, even before the clock domain is created.
+
+    Parameters
+    ----------
+    domain : str
+        Clock domain to obtain a reset signal for. Defaults to ``"sync"``.
+    allow_reset_less : bool
+        If the clock domain is reset-less, act as a constant ``0`` instead of reporting an error.
+    """
     def __init__(self, domain: str = ..., allow_reset_less: bool = ..., *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
 
 class Array(MutableSequence[T]):
-    """Addressable multiplexer.
+    """
+    Addressable multiplexer.
 
-    An"""
+    An array is similar to a ``list`` that can also be indexed by ``Value``s; indexing by an integer
+    or a slice works the same as for Python lists, but indexing by a ``Value`` results in a proxy.
 
+    The array proxy can be used as an ordinary ``Value``, i.e. participate in calculations and
+    assignments, provided that all elements of the array are values. The array proxy also supports
+    attribute access and further indexing, each returning another array proxy; this means that
+    the results of indexing into arrays, arrays of records, and arrays of arrays can all
+    be used as first-class values.
+
+    It is an error to change an array or any of its elements after an array proxy was created.
+    Changing the array directly will raise an exception. However, it is not possible to detect
+    the elements being modified; if an element's attribute or element is modified after the proxy
+    for it has been created, the proxy will refer to stale data.
+
+    Examples
+    --------
+
+    Simple array::
+
+        gpios = Array(Signal() for _ in range(10))
+        with m.If(bus.we):
+            m.d.sync += gpios[bus.addr].eq(bus.w_data)
+        with m.Else():
+            m.d.sync += bus.r_data.eq(gpios[bus.addr])
+
+    Multidimensional array::
+
+        mult = Array(Array(x * y for y in range(10)) for x in range(10))
+        a = Signal.range(10)
+        b = Signal.range(10)
+        r = Signal(8)
+        m.d.comb += r.eq(mult[a][b])
+
+    Array of records::
+
+        layout = [
+            ("r_data", 16),
+            ("r_en",   1),
+        ]
+        buses  = Array(Record(layout) for busno in range(4))
+        master = Record(layout)
+        m.d.comb += [
+            buses[sel].r_en.eq(master.r_en),
+            master.r_data.eq(buses[sel].r_data),
+        ]
+    """
     def __init__(self, iterable: Iterable[T] = ()) -> None: ...
     @overload
     def __getitem__(self, index: int) -> T: ...
@@ -1098,14 +1447,31 @@ class ArrayProxy(Value):
     def __repr__(self) -> str: ...
 
 class ValueCastable:
-    """Base class for classes which can"""
+    """
+    Interface class for objects that can be cast to a :class:`Value`.
+
+    Computations in the Amaranth language are described by combining :ref:`value-like objects
+    <lang-valuelike>`. Inheriting a class from :class:`ValueCastable` and implementing
+    all of the methods described below adds instances of that class to the list of
+    value-like objects recognized by the :meth:`Value.cast` method. This is a part of the mechanism
+    for seamlessly extending the Amaranth language in third-party code.
+
+    .. note::
+
+        All methods and operators defined by the :class:`Value` class will implicitly cast
+        a :class:`ValueCastable` object to a :class:`Value`, with the exception of arithmetic
+        operators, which will prefer calling a reflected arithmetic operation on
+        the :class:`ValueCastable` argument if it defines one.
+
+        For example, if :py:`value_castable` implements :py:`__radd__`, then
+        :py:`C(1) + value_castable` will perform :py:`value_castable.__radd__(C(1))`, and otherwise
+        it will perform :py:`C(1).__add__(value_castable.as_value())`.
+    """
     def __new__(cls, *args, **kwargs):  # -> Self@ValueCastable:
         ...
     @staticmethod
     def lowermethod(func):  # -> (self: Unknown, *args: Unknown, **kwargs: Unknown) -> Unknown:
-        """Decorator to memoize lowering me"""
         ...
-
     @abstractmethod
     def as_value(self) -> ValueLike:
         """
@@ -1175,9 +1541,6 @@ class ValueCastable:
 
 @final
 class Sample(Value):
-    """Value from the past.
-
-    A ``Sa"""
     def __init__(self, expr: ValueLike, clocks: int, domain: Optional[str], *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
@@ -1189,7 +1552,11 @@ def Fell(expr: ValueLike, clocks: int = ..., domain: Optional[str] = ...) -> Val
 
 @final
 class Initial(Value):
-    """Start indicator, for model check"""
+    """
+    Start indicator, for model checking.
+
+    An ``Initial`` signal is ``1`` at the first cycle of model checking, and ``0`` at any other.
+    """
     def __init__(self, *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
