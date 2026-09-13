@@ -11,6 +11,45 @@ from . import stream, wiring
 __all__ = ["FIFOInterface", "SyncFIFO", "SyncFIFOBuffered", "AsyncFIFO", "AsyncFIFOBuffered"]
 
 class FIFOInterface:
+    """
+    Data written to the input interface (``w_data``, ``w_rdy``, ``w_en``) is buffered and can be
+    read at the output interface (``r_data``, ``r_rdy``, ``r_en``). The data entry written first
+    to the input also appears first on the output.
+
+
+    Parameters
+    ----------
+    width : int
+        Bit width of data entries.
+    depth : int
+        Depth of the queue. If zero, the FIFO cannot be read from or written to.
+
+
+    Attributes
+    ----------
+
+    w_data : Signal(width), in
+        Input data.
+    w_rdy : Signal(1), out
+        Asserted if there is space in the queue, i.e. ``w_en`` can be asserted to write
+        a new entry.
+    w_en : Signal(1), in
+        Write strobe. Latches ``w_data`` into the queue. Does nothing if ``w_rdy`` is not asserted.
+    w_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+
+    r_data : Signal(width), out
+        Output data. The conditions in which ``r_data`` is valid depends on the type of the queue.
+    r_rdy : Signal(1), out
+        Asserted if there is an entry in the queue, i.e. ``r_en`` can be asserted to read
+        an existing entry.
+    r_en : Signal(1), in
+        Read strobe. Makes the next entry (if any) available on ``r_data`` at the next cycle.
+        Does nothing if ``r_rdy`` is not asserted.
+    r_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+    """
+
     width: int
     depth: int
     w_data: Signal
@@ -28,20 +67,206 @@ class FIFOInterface:
     def r_stream(self) -> stream.Signature: ...
 
 class SyncFIFO(Elaboratable, FIFOInterface):
+    """
+    Synchronous first in, first out queue.
+
+    Read and write interfaces are accessed from the same clock domain. If different clock domains
+    are needed, use :class:`AsyncFIFO`.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of data entries.
+    depth : int
+        Depth of the queue. If zero, the FIFO cannot be read from or written to.
+
+
+    Attributes
+    ----------
+    level : Signal(range(depth + 1)), out
+        Number of unread entries. This level is the same between read and write for synchronous FIFOs.
+    w_data : Signal(width), in
+        Input data.
+    w_rdy : Signal(1), out
+        Asserted if there is space in the queue, i.e. ``w_en`` can be asserted to write
+        a new entry.
+    w_en : Signal(1), in
+        Write strobe. Latches ``w_data`` into the queue. Does nothing if ``w_rdy`` is not asserted.
+    w_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+
+    r_data : Signal(width), out
+        Output data. Valid if ``r_rdy`` is asserted.
+    r_rdy : Signal(1), out
+        Asserted if there is an entry in the queue, i.e. ``r_en`` can be asserted to read
+        an existing entry.
+    r_en : Signal(1), in
+        Read strobe. Makes the next entry (if any) available on ``r_data`` at the next cycle.
+        Does nothing if ``r_rdy`` is not asserted.
+    r_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+    """
     def __init__(self, *, width: int, depth: int) -> None: ...
     def elaborate(self, platform) -> HasElaborate: ...
 
 class SyncFIFOBuffered(Elaboratable, FIFOInterface):
+    """
+    Buffered synchronous first in, first out queue.
+
+    This queue's interface is identical to :class:`SyncFIFO`, but it
+    does not use asynchronous memory reads, which are incompatible with FPGA block RAMs.
+
+    In exchange, the latency between an entry being written to an empty queue and that entry
+    becoming available on the output is increased by one cycle compared to :class:`SyncFIFO`.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of data entries.
+    depth : int
+        Depth of the queue. If zero, the FIFO cannot be read from or written to.
+
+
+    Attributes
+    ----------
+    level : Signal(range(depth + 1)), out
+        Number of unread entries. This level is the same between read and write for synchronous FIFOs.
+    w_data : Signal(width), in
+        Input data.
+    w_rdy : Signal(1), out
+        Asserted if there is space in the queue, i.e. ``w_en`` can be asserted to write
+        a new entry.
+    w_en : Signal(1), in
+        Write strobe. Latches ``w_data`` into the queue. Does nothing if ``w_rdy`` is not asserted.
+    w_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+
+    r_data : Signal(width), out
+        Output data. Valid if ``r_rdy`` is asserted.
+    r_rdy : Signal(1), out
+        Asserted if there is an entry in the queue, i.e. ``r_en`` can be asserted to read
+        an existing entry.
+    r_en : Signal(1), in
+        Read strobe. Makes the next entry (if any) available on ``r_data`` at the next cycle.
+        Does nothing if ``r_rdy`` is not asserted.
+    r_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+    """
     def __init__(self, *, width: int, depth: int) -> None: ...
     def elaborate(self, platform) -> HasElaborate: ...
 
 class AsyncFIFO(Elaboratable, FIFOInterface):
+    """
+    Asynchronous first in, first out queue.
+
+    Read and write interfaces are accessed from different clock domains, which can be set when
+    constructing the FIFO.
+
+    :class:`AsyncFIFO` can be reset from the write clock domain. When the write domain reset is
+    asserted, the FIFO becomes empty. When the read domain is reset, data remains in the FIFO - the
+    read domain logic should correctly handle this case.
+
+    :class:`AsyncFIFO` only supports power of 2 depths. Unless ``exact_depth`` is specified,
+    the ``depth`` parameter is rounded up to the next power of 2.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of data entries.
+    depth : int
+        Depth of the queue. If zero, the FIFO cannot be read from or written to.
+    r_domain : str
+        Read clock domain.
+    w_domain : str
+        Write clock domain.
+
+    Attributes
+    ----------
+
+    w_data : Signal(width), in
+        Input data.
+    w_rdy : Signal(1), out
+        Asserted if there is space in the queue, i.e. ``w_en`` can be asserted to write
+        a new entry.
+    w_en : Signal(1), in
+        Write strobe. Latches ``w_data`` into the queue. Does nothing if ``w_rdy`` is not asserted.
+    w_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+
+    r_data : Signal(width), out
+        Output data. Valid if ``r_rdy`` is asserted.
+    r_rdy : Signal(1), out
+        Asserted if there is an entry in the queue, i.e. ``r_en`` can be asserted to read
+        an existing entry.
+    r_en : Signal(1), in
+        Read strobe. Makes the next entry (if any) available on ``r_data`` at the next cycle.
+        Does nothing if ``r_rdy`` is not asserted.
+    r_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+    r_rst : Signal(1), out
+        Asserted, for at least one read-domain clock cycle, after the FIFO has been reset by
+        the write-domain reset.
+    """
     def __init__(
         self, *, width: int, depth: int, r_domain: str = ..., w_domain: str = ..., exact_depth: bool = ...
     ) -> None: ...
     def elaborate(self, platform) -> HasElaborate: ...
 
 class AsyncFIFOBuffered(Elaboratable, FIFOInterface):
+    """
+    Buffered asynchronous first in, first out queue.
+
+    Read and write interfaces are accessed from different clock domains, which can be set when
+    constructing the FIFO.
+
+    :class:`AsyncFIFOBuffered` only supports power of 2 plus one depths. Unless ``exact_depth``
+    is specified, the ``depth`` parameter is rounded up to the next power of 2 plus one.
+    (The output buffer acts as an additional queue element.)
+
+    This queue's interface is identical to :class:`AsyncFIFO`, but it has an additional register
+    on the output, improving timing in case of block RAM that has large clock-to-output delay.
+
+    In exchange, the latency between an entry being written to an empty queue and that entry
+    becoming available on the output is increased by one cycle compared to :class:`AsyncFIFO`.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of data entries.
+    depth : int
+        Depth of the queue. If zero, the FIFO cannot be read from or written to.
+    r_domain : str
+        Read clock domain.
+    w_domain : str
+        Write clock domain.
+
+    Attributes
+    ----------
+
+    w_data : Signal(width), in
+        Input data.
+    w_rdy : Signal(1), out
+        Asserted if there is space in the queue, i.e. ``w_en`` can be asserted to write
+        a new entry.
+    w_en : Signal(1), in
+        Write strobe. Latches ``w_data`` into the queue. Does nothing if ``w_rdy`` is not asserted.
+    w_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+
+    r_data : Signal(width), out
+        Output data. Valid if ``r_rdy`` is asserted.
+    r_rdy : Signal(1), out
+        Asserted if there is an entry in the queue, i.e. ``r_en`` can be asserted to read
+        an existing entry.
+    r_en : Signal(1), in
+        Read strobe. Makes the next entry (if any) available on ``r_data`` at the next cycle.
+        Does nothing if ``r_rdy`` is not asserted.
+    r_level : Signal(range(depth + 1)), out
+        Number of unread entries.
+    r_rst : Signal(1), out
+        Asserted, for at least one read-domain clock cycle, after the FIFO has been reset by
+        the write-domain reset.
+    """
     def __init__(
         self, *, width: int, depth: int, r_domain: str = ..., w_domain: str = ..., exact_depth: bool = ...
     ) -> None: ...

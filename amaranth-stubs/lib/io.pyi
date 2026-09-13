@@ -30,8 +30,18 @@ class Direction(enum.Enum):
     #: Bidirectional (can be switched between input and output)
     Bidir = "io"
 
-    def __or__(self, other: Direction) -> Direction: ...
-    def __and__(self, other: Direction) -> Direction: ...
+    def __or__(self, other: Direction) -> Direction:
+        """Return self|value."""
+        ...
+    def __and__(self, other: Direction) -> Direction:
+        """
+        Narrow the set of possible directions.
+
+        * :py:`self & self` returns :py:`self`.
+        * :py:`Bidir & other` returns :py:`other`.
+        * :py:`Input & Output` raises :exc:`ValueError`.
+        """
+        ...
 
 class PortLike(metaclass=ABCMeta):
     """Represents an abstract port that can be passed to a buffer.
@@ -328,7 +338,17 @@ class Buffer(wiring.Component):
     @property
     def oe(self) -> Signal: ...
     @property
-    def signature(self) -> Signature: ...
+    def signature(self) -> Signature:
+        """
+        Signature of the component.
+
+        .. warning::
+
+            Do not override this property. Once a component is constructed, its :attr:`signature`
+            property must always return the same :class:`Signature` instance. The constructor
+            can be used to customize a component's signature.
+        """
+        ...
     def __init__(self, direction: Direction, port: PortLike) -> None: ...
     @property
     def port(self) -> PortLike: ...
@@ -382,7 +402,17 @@ class FFBuffer(wiring.Component):
         def __repr__(self) -> str: ...
 
     @property
-    def signature(self) -> Signature: ...
+    def signature(self) -> Signature:
+        """
+        Signature of the component.
+
+        .. warning::
+
+            Do not override this property. Once a component is constructed, its :attr:`signature`
+            property must always return the same :class:`Signature` instance. The constructor
+            can be used to customize a component's signature.
+        """
+        ...
     def __init__(
         self, direction: Direction, port: PortLike, *, i_domain: Optional[str] = ..., o_domain: Optional[str] = ...
     ) -> None:
@@ -472,7 +502,17 @@ class DDRBuffer(wiring.Component):
         def __repr__(self) -> str: ...
 
     @property
-    def signature(self) -> Signature: ...
+    def signature(self) -> Signature:
+        """
+        Signature of the component.
+
+        .. warning::
+
+            Do not override this property. Once a component is constructed, its :attr:`signature`
+            property must always return the same :class:`Signature` instance. The constructor
+            can be used to customize a component's signature.
+        """
+        ...
     def __init__(
         self, direction: Direction, port: PortLike, *, i_domain: Optional[str] = ..., o_domain: Optional[str] = ...
     ) -> None: ...

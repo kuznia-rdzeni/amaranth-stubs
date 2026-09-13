@@ -691,7 +691,21 @@ class Signature(metaclass=SignatureMeta):
         """
         ...
 
-    def annotations(self, obj: AbstractInterface[Self], /) -> Iterable[Annotation]: ...
+    def annotations(self, obj: AbstractInterface[Self], /) -> Iterable[Annotation]:
+        """
+        Annotate an interface object.
+
+        Subclasses of :class:`Signature` may override this method to provide annotations for
+        a corresponding interface object. The default implementation provides none.
+
+        See :mod:`amaranth.lib.meta` for details.
+
+        Returns
+        -------
+        iterable of :class:`~.meta.Annotation`
+            :py:`tuple()`
+        """
+        ...
     def __repr__(self) -> str: ...
 
 @final
@@ -758,7 +772,53 @@ class FlippedSignature(Generic[_T_Signature]):
     def members(self) -> FlippedSignatureMembers: ...
     def __eq__(self, other) -> bool: ...
     def flatten(self, obj) -> Iterator[tuple[tuple[str | int, ...], Flow, ValueLike]]: ...
-    def is_compliant(self, obj, *, reasons: Optional[list[str]] = ..., path: tuple[str, ...] = ...) -> bool: ...
+    def is_compliant(self, obj, *, reasons: Optional[list[str]] = ..., path: tuple[str, ...] = ...) -> bool:
+        """
+        Check whether an object matches the description in this signature.
+
+        This module places few restrictions on what an interface object may be; it does not
+        prescribe a specific base class or a specific way of constructing the object, only
+        the values that its attributes should have. This method ensures consistency between
+        the signature and the interface object, checking every aspect of the provided interface
+        object for compliance with the signature.
+
+        It verifies that:
+
+        * :py:`obj` has a :py:`signature` attribute whose value a :class:`Signature` instance
+          such that :py:`self == obj.signature`;
+        * for each member, :py:`obj` has an attribute with the same name, whose value:
+
+          * for members with :meth:`dimensions <Member.dimensions>` specified, contains a list or
+            a tuple (or several levels of nested lists or tuples, for multiple dimensions)
+            satisfying the requirements below;
+          * for port members, is a :ref:`value-like <lang-valuelike>` object casting to
+            a :class:`Signal` or a :class:`Const` whose width and signedness is the same as that
+            of the member, and (in case of a :class:`Signal`) whose initial value is that of the
+            member;
+          * for signature members, matches the description in the signature as verified by
+            :meth:`Signature.is_compliant`.
+
+        If the verification fails, this method reports the reason(s) by filling the :py:`reasons`
+        container. These reasons are intended to be human-readable: more than one reason may be
+        reported but only in cases where this is helpful (e.g. the same error message will not
+        repeat 10 times for each of the 10 ports in a list).
+
+        Arguments
+        ---------
+        reasons : :class:`list` or :py:`None`
+            If provided, a container that receives diagnostic messages.
+        path : :class:`tuple` of :class:`str`
+            The :ref:`path <wiring-path>` to :py:`obj`. Could be set to improve diagnostic
+            messages if :py:`obj` is nested within another object, or for clarity.
+
+        Returns
+        -------
+        :class:`bool`
+            :py:`True` if :py:`obj` matches the description in this signature, :py:`False`
+            otherwise. If :py:`False` and :py:`reasons` was not :py:`None`, it will contain
+            a detailed explanation why.
+        """
+        ...
     def __getattr__(self, name) -> Any:
         """Retrieves attribute or method :pc:`name` of the unflipped signature.
 
@@ -935,11 +995,34 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
     def __repr__(self) -> str: ...
 
 @overload
-def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface: ...
+def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface:
+    """
+    Flip the data flow of the members of the interface object :py:`interface`.
+
+    If an interface object is flipped twice, returns the original object:
+    :py:`flipped(flipped(interface)) is interface`. Otherwise, wraps :py:`interface` in
+    a :class:`FlippedInterface` proxy object that flips the directions of its members.
+
+    See the documentation for the :class:`FlippedInterface` class for a detailed discussion of how
+    this proxy object works.
+    """
+    ...
 
 # Can't be typed nicer for now.
 @overload
-def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]: ...
+def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]:
+    """
+    Flip the data flow of the members of the interface object :py:`interface`.
+
+    If an interface object is flipped twice, returns the original object:
+    :py:`flipped(flipped(interface)) is interface`. Otherwise, wraps :py:`interface` in
+    a :class:`FlippedInterface` proxy object that flips the directions of its members.
+
+    See the documentation for the :class:`FlippedInterface` class for a detailed discussion of how
+    this proxy object works.
+    """
+    ...
+
 def flipped(interface: _T_Interface) -> _T_Interface | FlippedInterface[Any, _T_Interface]:
     """
     Flip the data flow of the members of the interface object :pc:`interface`.
@@ -1091,9 +1174,56 @@ class InvalidMetadata(Exception):
     a component's metadata does not conform to its schema."""
 
 class ComponentMetadata(Annotation[Component]):
+    """
+    Component metadata.
+
+    Component :ref:`metadata <meta>` describes the interface of a :class:`Component` and can be
+    exported to JSON for interoperability with non-Amaranth tooling.
+
+    Arguments
+    ---------
+    origin : :class:`Component`
+        Component described by this metadata instance.
+    """
     def __init__(self, origin: Component): ...
     @property
-    def origin(self) -> Component: ...
+    def origin(self) -> Component:
+        """
+        Component described by this metadata.
+
+        Returns
+        -------
+        :class:`Component`
+        """
+        ...
     @classmethod
-    def validate(cls, instance: dict) -> None: ...
-    def as_json(self) -> dict: ...
+    def validate(cls, instance: dict) -> None:
+        """
+        Validate a JSON representation of component metadata against :attr:`schema`.
+
+        This method does not validate annotations of the interface members, and consequently does
+        not make network requests.
+
+        Arguments
+        ---------
+        instance : :class:`dict`
+            JSON representation to validate, either previously returned by :meth:`as_json` or
+            retrieved from an external source.
+
+        Raises
+        ------
+        :exc:`InvalidMetadata`
+            If :py:`instance` doesn't conform to :attr:`schema`.
+        """
+        ...
+    def as_json(self) -> dict:
+        """
+        Translate to JSON.
+
+        Returns
+        -------
+        :class:`dict`
+            JSON representation of :attr:`origin` that describes its interface members and includes
+            their annotations.
+        """
+        ...

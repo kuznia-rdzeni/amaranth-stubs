@@ -24,16 +24,139 @@ __all__ = [
 ]
 
 class Simulator:
+    """
+    Simulator(toplevel)
+
+    Simulator for Amaranth designs.
+
+    The simulator accepts a *top-level design* (an :ref:`elaboratable <lang-elaboration>`),
+    *processes* that replace circuits with behavioral code, *clocks* that drive clock domains, and
+    *testbenches* that exercise the circuits and verify that they work correctly.
+
+    The simulator lifecycle consists of four stages:
+
+    1. The simulator is created: ::
+
+        sim = Simulator(design)
+
+    2. Processes, clocks, and testbenches are added as necessary: ::
+
+        sim.add_clock(1e-6)
+        sim.add_clock(1e-7, domain="fast")
+        sim.add_process(process_instr_decoder)
+        sim.add_testbench(testbench_cpu_execute)
+
+    3. The simulation is run: ::
+
+        with sim.write_vcd("waveform.vcd"):
+            sim.run()
+
+    4. (Optional) The simulator is reset: ::
+
+        sim.reset()
+
+    After the simulator is reset, it may be reused to run the simulation again.
+
+    .. note::
+
+        Resetting the simulator can also be used to amortize the startup cost of repeatedly
+        simulating a large design.
+
+    Arguments
+    ---------
+    toplevel : :class:`~amaranth.hdl.Elaboratable`
+        Simulated design.
+    """
     def __init__(self, fragment, *, engine=...) -> None: ...
     def add_process(
         self, process: Callable[[], TestGenerator[None]] | Callable[[ProcessContext], TestCoroutine[None]]
-    ) -> None: ...
+    ) -> None:
+        r"""
+        Add a process to the simulation.
+
+        Adds a process that is evaluated as a part of the :py:`toplevel` elaboratable and is able to
+        replace circuits with Python code.
+
+        The behavior of the process is defined by its *constructor function*, which is
+        an :py:`async` function that takes a single argument, the :class:`SimulatorContext`: ::
+
+            async def process(ctx):
+                async for clk_edge, rst, ... in ctx.tick().sample(...):
+                    ...
+
+            sim.add_process(process)
+
+        This method does not accept coroutines. Rather, the provided :py:`constructor` coroutine
+        function is called immediately when the procss is added to create a coroutine, as well as
+        by the :meth:`reset` method.
+
+        Processes can be *critical* or *background*, and are always background when added.
+        The :meth:`run` method will continue advancing the simulation while any critical testbenches
+        or processes are running, and will exit when only background testbenches or processes
+        remain. A background process can temporarily become critical using
+        the :meth:`~SimulatorContext.critical` context manager.
+
+        At each point in time, all of the non-waiting processes are executed in an arbitrary order
+        that may be different between individual simulation runs.
+
+        .. warning::
+
+            If two processes share state, they must do so in a way that does not rely on
+            a particular order of execution for correctness.
+
+            Preferably, the shared state would be stored in :class:`~amaranth.hdl.Signal`\ s (even
+            if it is not intended to be a part of a circuit), with access to it synchronized using
+            :py:`await ctx.tick().sample(...)`. Such state is visible in a waveform viewer,
+            simplifying debugging.
+
+        Raises
+        ------
+        :exc:`RuntimeError`
+            If the simulation has been advanced since its creation or last reset.
+        """
+        ...
     def add_testbench(
         self,
         process: Callable[[], TestGenerator[None]] | Callable[[TestbenchContext], TestCoroutine[None]],
         *,
         background: bool = False,
-    ) -> None: ...
+    ) -> None:
+        """
+        Add a testbench to the simulation.
+
+        Adds a testbench that runs concurrently with the :py:`toplevel` elaboratable and is able to
+        manipulate its inputs, outputs, and state.
+
+        The behavior of the testbench is defined by its *constructor function*, which is
+        an :py:`async` function that takes a single argument, the :class:`SimulatorContext`: ::
+
+            async def testbench(ctx):
+                ...
+                await ctx.tick()
+                ...
+
+            sim.add_testbench(testbench)
+
+        This method does not accept coroutines. Rather, the provided :py:`constructor` coroutine
+        function is called immediately when the testbench is added to create a coroutine, as well as
+        by the :meth:`reset` method.
+
+        The testbench can be *critical* (the default) or *background* (if the :py:`background=True`
+        argument is specified). The :meth:`run` method will continue advancing the simulation while
+        any critical testbenches or processes are running, and will exit when only background
+        testbenches or processes remain. A background testbench can temporarily become critical
+        using the :meth:`~SimulatorContext.critical` context manager.
+
+        At each point in time, all of the non-waiting testbenches are executed in the order in
+        which they were added. If two testbenches share state, or must manipulate the design in
+        a coordinated way, they may rely on this execution order for correctness.
+
+        Raises
+        ------
+        :exc:`RuntimeError`
+            If the simulation has been advanced since its creation or last reset.
+        """
+        ...
     def add_clock(self, period, *, phase=..., domain=..., if_exists=...):
         """Add a clock process.
 

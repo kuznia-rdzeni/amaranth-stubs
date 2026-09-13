@@ -76,13 +76,184 @@ class DUID:
     def __init__(self) -> None: ...
 
 class ShapeCastable(Generic[U]):
+    """
+    Interface class for objects that can be cast to a :class:`Shape`.
+
+    Shapes of values in the Amaranth language are specified using :ref:`shape-like objects
+    <lang-shapelike>`. Inheriting a class from :class:`ShapeCastable` and implementing all of
+    the methods described below adds instances of that class to the list of shape-like objects
+    recognized by the :meth:`Shape.cast` method. This is a part of the mechanism for seamlessly
+    extending the Amaranth language in third-party code.
+
+    To illustrate their purpose, consider constructing a signal from a shape-castable object
+    :py:`shape_castable`:
+
+    .. code::
+
+        value_like = Signal(shape_castable, init=initializer)
+
+    The code above is equivalent to:
+
+    .. code::
+
+        value_like = shape_castable(Signal(
+            shape_castable.as_shape(),
+            init=shape_castable.const(initializer)
+        ))
+
+    Note that the :py:`shape_castable(x)` syntax performs :py:`shape_castable.__call__(x)`.
+
+    .. tip::
+
+        The source code of the :mod:`amaranth.lib.data` module can be used as a reference for
+        implementing a fully featured shape-castable object.
+    """
     def __init__(self, *args, **kwargs) -> None: ...
     def __init_subclass__(cls, **kwargs) -> None: ...
-    def as_shape(self, *args, **kwargs) -> ShapeLike: ...
-    def __call__(self, target: ValueLike) -> U: ...
-    def const(self, *args, **kwargs) -> ValueLike: ...
-    def from_bits(self, raw: int): ...
-    def format(self, obj: ValueLike, spec: str) -> Format: ...
+    def as_shape(self, *args, **kwargs) -> ShapeLike:
+        """
+        as_shape()
+
+        Convert :py:`self` to a :ref:`shape-like object <lang-shapelike>`.
+
+        This method is called by the Amaranth language to convert :py:`self` to a concrete
+        :class:`Shape`. It will usually return a :class:`Shape` object, but it may also return
+        another shape-like object to delegate its functionality.
+
+        This method must be idempotent: when called twice on the same object, the result must be
+        exactly the same.
+
+        This method may also be called by code that is not a part of the Amaranth language.
+
+        Returns
+        -------
+        Any other object recognized by :meth:`Shape.cast`.
+
+        Raises
+        ------
+        Exception
+            When the conversion cannot be done. This exception must be propagated by callers
+            (except when checking whether an object is shape-castable or not), either directly
+            or as a cause of another exception.
+        """
+        ...
+    def __call__(self, target: ValueLike) -> U:
+        """
+        __call__(obj)
+
+        Lift a :ref:`value-like object <lang-valuelike>` to a higher-level representation.
+
+        This method is called by the Amaranth language to lift :py:`obj`, which may be any
+        :ref:`value-like object <lang-valuelike>` whose shape equals :py:`Shape.cast(self)`,
+        to a higher-level representation, which may be any value-like object with the same
+        shape. While not constrained here, usually a :class:`ShapeCastable` implementation will
+        be paired with a :class:`ValueCastable` implementation, and this method will return
+        an instance of the latter.
+
+        If :py:`obj` is not as described above, this interface does not constrain the behavior
+        of this method. This may be used to implement another call-based protocol at the same
+        time.
+
+        For any compliant :py:`obj`, the following condition must hold:
+
+        .. code::
+
+            Value.cast(self(obj)) == Value.cast(obj)
+
+        This method may also be called by code that is not a part of the Amaranth language.
+
+        Returns
+        -------
+        A :ref:`value-like object <lang-valuelike>`.
+        """
+        ...
+    def const(self, *args, **kwargs) -> ValueLike:
+        """
+        const(obj)
+
+        Convert a constant initializer :py:`obj` to its value representation.
+
+        This method is called by the Amaranth language to convert :py:`obj`, which may be an
+        arbitrary Python object, to a concrete :ref:`value-like object <lang-valuelike>`.
+        The object :py:`obj` will usually be a Python literal that can conveniently represent
+        a constant value whose shape is described by :py:`self`. While not constrained here,
+        the result will usually be an instance of the return type of :meth:`__call__`.
+
+        For any :py:`obj`, the following condition must hold:
+
+        .. code::
+
+            Shape.cast(self) == Const.cast(self.const(obj)).shape()
+
+        This method may also be called by code that is not a part of the Amaranth language.
+
+        Returns
+        -------
+        A :ref:`value-like object <lang-valuelike>` that is :ref:`constant-castable <lang-constcasting>`.
+
+        Raises
+        ------
+        Exception
+            When the conversion cannot be done. This exception must be propagated by callers,
+            either directly or as a cause of another exception. While not constrained here,
+            usually the exception class will be :exc:`TypeError` or :exc:`ValueError`.
+        """
+        ...
+    def from_bits(self, raw: int):
+        """
+        Lift a bit pattern to a higher-level representation.
+
+        This method is called by the Amaranth language to lift :py:`raw`, which is an :class:`int`,
+        to a higher-level representation, which may be any object accepted by :meth:`const`.
+        Most importantly, the simulator calls this method when the value of a shape-castable
+        object is retrieved.
+
+        For any valid bit pattern :py:`raw`, the following condition must hold:
+
+        .. code::
+
+            Const.cast(self.const(self.from_bits(raw))).value == raw
+
+        While :meth:`const` will usually return an Amaranth value or a custom value-castable
+        object that is convenient to use while constructing the design, this method will usually
+        return a Python object that is convenient to use while simulating the design. While not
+        constrained here, these objects should have the same type whenever feasible.
+
+        This method may also be called by code that is not a part of the Amaranth language.
+
+        Returns
+        -------
+        unspecified type
+
+        Raises
+        ------
+        Exception
+            When the bit pattern isn't valid. This exception must be propagated by callers,
+            either directly or as a cause of another exception. While not constrained here,
+            usually the exception class will be :exc:`ValueError`.
+        """
+        ...
+    def format(self, obj: ValueLike, spec: str) -> Format:
+        """
+        Format a value.
+
+        This method is called by the Amaranth language to implement formatting for custom
+        shapes. Whenever :py:`"{obj:spec}"` is encountered by :class:`Format`, and :py:`obj`
+        has a custom shape that has a :meth:`format` method, :py:`obj.shape().format(obj, "spec")`
+        is called, and the format specifier is replaced with the result.
+
+        The default :meth:`format` implementation is:
+
+        .. code::
+
+            def format(self, obj, spec):
+                return Format(f"{{:{spec}}}", Value.cast(obj))
+
+        Returns
+        -------
+        :class:`Format`
+        """
+        ...
 
 class Shape:
     """Bit width and signedness of a va"""
@@ -92,8 +263,37 @@ class Shape:
     def signed(self) -> bool: ...
     def __init__(self, width: int = ..., signed: bool = ...) -> None: ...
     @staticmethod
-    def cast(obj: ShapeLike, *, src_loc_at=...) -> Shape: ...
-    def __repr__(self) -> str: ...
+    def cast(obj: ShapeLike, *, src_loc_at=...) -> Shape:
+        """
+        Cast :py:`obj` to a shape.
+
+        Many :ref:`shape-like <lang-shapelike>` objects can be cast to a shape:
+
+        * a :class:`Shape`, where the result is itself;
+        * an :class:`int`, where the result is :func:`unsigned(obj) <unsigned>`;
+        * a :class:`range`, where the result has minimal width required to represent all elements
+          of the range, and is signed if any element of the range is signed;
+        * an :class:`enum.Enum` whose members are all :ref:`constant-castable <lang-constcasting>`
+          or :class:`enum.IntEnum`, where the result is wide enough to represent any member of
+          the enumeration, and is signed if any member of the enumeration is signed;
+        * a :class:`ShapeCastable` object, where the result is obtained by repeatedly calling
+          :meth:`obj.as_shape() <ShapeCastable.as_shape>`.
+
+        Raises
+        ------
+        TypeError
+            If :py:`obj` cannot be converted to a :class:`Shape`.
+        RecursionError
+            If :py:`obj` is a :class:`ShapeCastable` object that casts to itself.
+        """
+        ...
+    def __repr__(self) -> str:
+        """
+        Python code that creates this shape.
+
+        Returns :py:`f"signed({self.width})"` or :py:`f"unsigned({self.width})"`.
+        """
+        ...
     def __eq__(self, other) -> bool: ...
     def __hash__(self) -> int: ...
 
@@ -106,48 +306,471 @@ def signed(width: int) -> Shape:
     ...
 
 class Value(metaclass=ABCMeta):
+    """
+    Abstract representation of a bit pattern computed in a circuit.
+
+    The Amaranth language gives Python code the ability to create a circuit netlist by manipulating
+    objects representing the computations within that circuit. The :class:`Value` class represents
+    the bit pattern of a constant, or of a circuit input or output, or within a storage element; or
+    the result of an arithmetic, logical, or bit container operation.
+
+    Operations on this class interpret this bit pattern either as an integer, which can be signed
+    or unsigned depending on the value's :meth:`shape`, or as a bit container. In either case,
+    the semantics of operations that implement Python's syntax, like :py:`+` (also known as
+    :meth:`__add__`), are identical to the corresponding operation on a Python :class:`int` (or on
+    a Python sequence container). The bitwise inversion :py:`~` (also known as :meth:`__invert__`)
+    is the sole exception to this rule.
+
+    Data that is not conveniently representable by a single integer or a bit container can be
+    represented by wrapping a :class:`Value` in a :class:`ValueCastable` subclass that provides
+    domain-specific operations. It is possible to extend Amaranth in third-party code using
+    value-castable objects, and the Amaranth standard library provides several built-in ones:
+
+    * :mod:`amaranth.lib.enum` classes are a drop-in replacement for the standard Python
+      :mod:`enum` classes that can be defined with an Amaranth shape;
+    * :mod:`amaranth.lib.data` classes allow defining complex data structures such as structures
+      and unions.
+
+    Operations on :class:`Value` instances return another :class:`Value` instance. Unless the exact
+    type and value of the result is explicitly specified below, it should be considered opaque, and
+    may change without notice between Amaranth releases as long as the semantics remains the same.
+
+    .. note::
+
+        In each of the descriptions below, you will see a line similar to:
+
+        **Return type:** :class:`Value`, :py:`unsigned(1)`, :ref:`assignable <lang-assignable>`
+
+        The first part (:class:`Value`) indicates that the returned object's type is a subclass
+        of :class:`Value`. The second part (:py:`unsigned(1)`) describes the shape of that value.
+        The third part, if present, indicates that the value is assignable if :py:`self` is
+        assignable.
+    """
     @staticmethod
     def cast(obj: ValueLike) -> Value:
         """Converts ``obj`` to an Amaranth"""
         ...
 
     def __init__(self, *, src_loc_at=...) -> None: ...
-    def __bool__(self) -> NoReturn: ...
-    def __invert__(self) -> Value: ...
-    def __pos__(self) -> Value: ...
-    def __neg__(self) -> Value: ...
-    def __add__(self, other: ValueLike) -> Value: ...
-    def __radd__(self, other: ValueLike) -> Value: ...
-    def __sub__(self, other: ValueLike) -> Value: ...
-    def __rsub__(self, other: ValueLike) -> Value: ...
-    def __mul__(self, other: ValueLike) -> Value: ...
-    def __rmul__(self, other: ValueLike) -> Value: ...
-    def __mod__(self, other: ValueLike) -> Value: ...
-    def __rmod__(self, other: ValueLike) -> Value: ...
-    def __floordiv__(self, other: ValueLike) -> Value: ...
-    def __rfloordiv__(self, other: ValueLike) -> Value: ...
-    def __lshift__(self, other: ValueLike) -> Value: ...
-    def __rlshift__(self, other: ValueLike) -> Value: ...
-    def __rshift__(self, other: ValueLike) -> Value: ...
-    def __rrshift__(self, other: ValueLike) -> Value: ...
-    def __and__(self, other: ValueLike) -> Value: ...
-    def __rand__(self, other: ValueLike) -> Value: ...
-    def __xor__(self, other: ValueLike) -> Value: ...
-    def __rxor__(self, other: ValueLike) -> Value: ...
-    def __or__(self, other: ValueLike) -> Value: ...
-    def __ror__(self, other: ValueLike) -> Value: ...
-    def __eq__(self, other: ValueLike) -> Value: ...
-    def __ne__(self, other: ValueLike) -> Value: ...
-    def __lt__(self, other: ValueLike) -> Value: ...
-    def __le__(self, other: ValueLike) -> Value: ...
-    def __gt__(self, other: ValueLike) -> Value: ...
-    def __ge__(self, other: ValueLike) -> Value: ...
-    def __abs__(self) -> Value: ...
-    def __len__(self) -> int: ...
-    def __getitem__(self, key: int | slice) -> Value: ...
+    def __bool__(self) -> NoReturn:
+        """
+        Forbidden conversion to boolean.
+
+        Python uses this operator for its built-in semantics, e.g. :py:`if`, and requires it to
+        return a :class:`bool`. Since this is not possible for Amaranth values, this operator
+        always raises an exception.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            Always.
+        """
+        ...
+    def __invert__(self) -> Value:
+        """
+        Bitwise NOT, :py:`~self`.
+
+        The shape of the result is the same as the shape of :py:`self`, even for unsigned values.
+
+        .. warning::
+
+            In Python, :py:`~0` equals :py:`-1`. In Amaranth, :py:`~C(0)` equals :py:`C(1)`.
+            This is the only case where an Amaranth operator deviates from the Python operator
+            with the same name.
+
+            This deviation is necessary because Python does not allow overriding the logical
+            :py:`and`, :py:`or`, and :py:`not` operators. Amaranth uses :py:`&`, :py:`|`, and
+            :py:`~` instead; if it wasn't the case that :py:`~C(0) == C(1)`, that would have
+            been impossible.
+
+        Returns
+        -------
+        :class:`Value`, :py:`self.shape()`
+        """
+        ...
+    def __pos__(self) -> Value:
+        """
+        Unary position, :py:`+self`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`self.shape()`
+            :py:`self`
+        """
+        ...
+    def __neg__(self) -> Value:
+        """
+        Unary negation, :py:`-self`.
+
+        ..
+            >>> C(-1).value, C(-1).shape()
+            -1, signed(1)
+            >>> C(-(-1), signed(1)).value # overflows
+            -1
+
+        Returns
+        -------
+        :class:`Value`, :py:`signed(len(self) + 1)`
+        """
+        ...
+    def __add__(self, other: ValueLike) -> Value:
+        """
+        Addition, :py:`self + other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1) + 1)`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __radd__(self, other: ValueLike) -> Value:
+        """
+        Addition, :py:`other + self` (reflected).
+
+        Like :meth:`__add__`, with operands swapped.
+        """
+        ...
+    def __sub__(self, other: ValueLike) -> Value:
+        """
+        Subtraction, :py:`self - other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1) + 1)`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+
+        Returns
+        -------
+        :class:`Value`
+        """
+        ...
+    def __rsub__(self, other: ValueLike) -> Value:
+        """
+        Subtraction, :py:`other - self` (reflected).
+
+        Like :meth:`__sub__`, with operands swapped.
+        """
+        ...
+    def __mul__(self, other: ValueLike) -> Value:
+        """
+        Multiplication, :py:`self * other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self) + len(other))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(len(self) + len(other))`
+            If either :py:`self` or :py:`other` are signed.
+        """
+        ...
+    def __rmul__(self, other: ValueLike) -> Value:
+        """
+        Multiplication, :py:`other * self` (reflected).
+
+        Like :meth:`__mul__`, with operands swapped.
+        """
+        ...
+    def __mod__(self, other: ValueLike) -> Value:
+        """
+        Flooring modulo or remainder, :py:`self % other`.
+
+        If :py:`other` is zero, the result of this operation is zero.
+
+        Returns
+        -------
+        :class:`Value`, :py:`other.shape()`
+        """
+        ...
+    def __rmod__(self, other: ValueLike) -> Value:
+        """
+        Flooring modulo or remainder, :py:`other % self` (reflected).
+
+        Like :meth:`__mod__`, with operands swapped.
+        """
+        ...
+    def __floordiv__(self, other: ValueLike) -> Value:
+        """
+        Flooring division, :py:`self // other`.
+
+        If :py:`other` is zero, the result of this operation is zero.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(len(self) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(len(self))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(len(self) + 1)`
+            If both :py:`self` and :py:`other` are signed.
+        """
+        ...
+    def __rfloordiv__(self, other: ValueLike) -> Value:
+        """
+        Flooring division, :py:`other // self` (reflected).
+
+        If :py:`self` is zero, the result of this operation is zero.
+
+        Like :meth:`__floordiv__`, with operands swapped.
+        """
+        ...
+    def __lshift__(self, other: ValueLike) -> Value:
+        """
+        Left shift by variable amount, :py:`self << other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self) + 2 ** len(other) - 1)`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(len(self) + 2 ** len(other) - 1)`
+            If :py:`self` is signed.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`other` is signed.
+        """
+        ...
+    def __rlshift__(self, other: ValueLike) -> Value:
+        """
+        Left shift by variable amount, :py:`other << self`.
+
+        Like :meth:`__lshift__`, with operands swapped.
+        """
+        ...
+    def __rshift__(self, other: ValueLike) -> Value:
+        """
+        Right shift by variable amount, :py:`self >> other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(len(self))`
+            If :py:`self` is signed.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`other` is signed.
+        """
+        ...
+    def __rrshift__(self, other: ValueLike) -> Value:
+        """
+        Right shift by variable amount, :py:`other >> self`.
+
+        Like :meth:`__rshift__`, with operands swapped.
+        """
+        ...
+    def __and__(self, other: ValueLike) -> Value:
+        """
+        Bitwise AND, :py:`self & other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __rand__(self, other: ValueLike) -> Value:
+        """
+        Bitwise AND, :py:`other & self`.
+
+        Like :meth:`__and__`, with operands swapped.
+        """
+        ...
+    def __xor__(self, other: ValueLike) -> Value:
+        """
+        Bitwise XOR, :py:`self ^ other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __rxor__(self, other: ValueLike) -> Value:
+        """
+        Bitwise XOR, :py:`other ^ self`.
+
+        Like :meth:`__xor__`, with operands swapped.
+        """
+        ...
+    def __or__(self, other: ValueLike) -> Value:
+        """
+        Bitwise OR, :py:`self | other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __ror__(self, other: ValueLike) -> Value:
+        """
+        Bitwise OR, :py:`other | self`.
+
+        Like :meth:`__or__`, with operands swapped.
+        """
+        ...
+    def __eq__(self, other: ValueLike) -> Value:
+        """
+        Equality comparison, :py:`self == other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __ne__(self, other: ValueLike) -> Value:
+        """
+        Inequality comparison, :py:`self != other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __lt__(self, other: ValueLike) -> Value:
+        """
+        Less than comparison, :py:`self < other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __le__(self, other: ValueLike) -> Value:
+        """
+        Less than or equals comparison, :py:`self <= other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __gt__(self, other: ValueLike) -> Value:
+        """
+        Greater than comparison, :py:`self > other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __ge__(self, other: ValueLike) -> Value:
+        """
+        Greater than or equals comparison, :py:`self >= other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __abs__(self) -> Value:
+        """
+        Absolute value, :py:`abs(self)`.
+
+        ..
+            >>> abs(C(-1)).shape()
+            unsigned(1)
+            >>> C(1).shape()
+            unsigned(1)
+
+        Return
+        ------
+        :class:`Value`, :py:`unsigned(len(self))`
+        """
+        ...
+    def __len__(self) -> int:
+        """
+        Bit width of :py:`self`.
+
+        Returns
+        -------
+        :class:`int`
+            :py:`self.shape().width`
+        """
+        ...
+    def __getitem__(self, key: int | slice) -> Value:
+        r"""
+        Bit slicing.
+
+        Selects a constant-width, constant-offset part of :py:`self`. All three slicing syntaxes
+        (:py:`self[i]`, :py:`self[i:j]`, and :py:`self[i:j:k]`) as well as negative indices are
+        supported. Like with other Python containers, out-of-bounds indices are trimmed to
+        the bounds of :py:`self`.
+
+        To select a variable-offset part of :py:`self`, use :meth:`bit_select` or
+        :meth:`word_select` instead.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`, :ref:`assignable <lang-assignable>`
+            If :py:`key` is an :class:`int`.
+        :class:`Value`, :py:`unsigned(j - i)`, :ref:`assignable <lang-assignable>`
+            If :py:`key` is a slice :py:`i:j` where :py:`i` and :py:`j` are :class:`int`\ s.
+        :class:`Value`, :py:`unsigned(len(range(*slice(i, j, k).indices(len(self)))))`, :ref:`assignable <lang-assignable>`
+            If :py:`key` is a slice :py:`i:j:k` where :py:`i`, :py:`j`, and :py:`k` are :class:`int`\ s.
+        """
+        ...
     def __iter__(self) -> Iterator[Value]: ...
-    def __contains__(self, other) -> NoReturn: ...
-    def __format__(self, format_desc) -> NoReturn: ...
+    def __contains__(self, other) -> NoReturn:
+        """
+        Forbidden membership test operator.
+
+        Python requires this operator to return a :class:`bool`. Since this is not possible
+        for Amaranth values, this operator always raises an exception.
+
+        To check membership in a set of constant integer values, use :meth:`matches` instead.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            Always.
+        """
+        ...
+    def __format__(self, format_desc) -> NoReturn:
+        """
+        Forbidden formatting.
+
+        Since normal Python formatting (f-strings and ``str.format``) must immediately return
+        a string, it is unsuitable for formatting Amaranth values. To format a value at simulation
+        time, use :class:`Format` instead. If you really want to dump the AST at elaboration time,
+        use ``repr`` instead (for instance, via ``f"{value!r}"``).
+        """
+        ...
     def as_unsigned(self) -> Value:
         """Conversion to unsigned."""
         ...
@@ -247,7 +870,15 @@ class Const(Value, metaclass=_ConstMeta):
 
     src_loc = ...
     @staticmethod
-    def cast(obj: ValueLike) -> Const: ...
+    def cast(obj: ValueLike) -> Const:
+        """
+        Converts ``obj`` to an Amaranth constant.
+
+        First, ``obj`` is converted to a value using :meth:`Value.cast`. If it is a constant, it
+        is returned. If it is a constant-castable expression, it is evaluated and returned.
+        Otherwise, :exn:`TypeError` is raised.
+        """
+        ...
     def __init__(self, value: int, shape: Optional[ShapeLike] = ..., *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
     @property
@@ -262,11 +893,15 @@ class AnyValue(Value, DUID):
 
 @final
 class AnyConst(AnyValue):
-    def __repr__(self) -> str: ...
+    def __repr__(self) -> str:
+        """Return repr(self)."""
+        ...
 
 @final
 class AnySeq(AnyValue):
-    def __repr__(self) -> str: ...
+    def __repr__(self) -> str:
+        """Return repr(self)."""
+        ...
 
 @final
 class Operator(Value):
@@ -299,9 +934,13 @@ class Cat(Value):
     """Concatenate values.
 
     Form a"""
-    def __init__(self, *args: Flattenable[ValueLike], src_loc_at=...) -> None: ...
+    def __init__(self, *args: Flattenable[ValueLike], src_loc_at=...) -> None:
+        """Initialize self.  See help(type(self)) for accurate signature."""
+        ...
     def shape(self) -> Shape: ...
-    def __repr__(self) -> str: ...
+    def __repr__(self) -> str:
+        """Return repr(self)."""
+        ...
 
 @final
 class Concat(Value):
@@ -372,12 +1011,30 @@ class Signal(Value, DUID, metaclass=_SignalMeta):
         name_suffix: Optional[str] = ...,
         src_loc_at=...,
         **kwargs,
-    ) -> _T_ValueCastable: ...
+    ) -> _T_ValueCastable:
+        """
+        Create Signal based on another.
+
+        Parameters
+        ----------
+        other : ValueLike
+            Object to base this Signal on.
+        """
+        ...
     @overload
     @staticmethod
     def like(
         other: FlatValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] = ..., src_loc_at=..., **kwargs
-    ) -> Signal: ...
+    ) -> Signal:
+        """
+        Create Signal based on another.
+
+        Parameters
+        ----------
+        other : ValueLike
+            Object to base this Signal on.
+        """
+        ...
     @staticmethod
     def like(
         other: ValueLike, *, name: Optional[str] = ..., name_suffix: Optional[str] = ..., src_loc_at=..., **kwargs
@@ -450,9 +1107,71 @@ class ValueCastable:
         ...
 
     @abstractmethod
-    def as_value(self) -> ValueLike: ...
+    def as_value(self) -> ValueLike:
+        """
+        as_value()
+
+        Convert :py:`self` to a :ref:`value-like object <lang-valuelike>`.
+
+        This method is called by the Amaranth language to convert :py:`self` to a concrete
+        :class:`Value`. It will usually return a :class:`Value` object, but it may also return
+        another value-like object to delegate its functionality.
+
+        This method must be idempotent: when called twice on the same object, the result must be
+        exactly the same.
+
+        This method may also be called by code that is not a part of the Amaranth language.
+
+        Returns
+        -------
+        Any other object recognized by :meth:`Value.cast`.
+
+        Raises
+        ------
+        Exception
+            When the conversion cannot be done. This exception must be propagated by callers,
+            either directly or as a cause of another exception.
+
+            It is recommended that, in cases where this method raises an exception,
+            the :meth:`shape` method also raises an exception.
+        """
+        ...
     @abstractmethod
-    def shape(self) -> ShapeLike: ...
+    def shape(self) -> ShapeLike:
+        """
+        shape()
+
+        Compute the shape of :py:`self`.
+
+        This method is not called by the Amaranth language itself; whenever it needs to discover
+        the shape of a value-castable object, it calls :class:`self.as_value().shape()`. However,
+        that method must return a :class:`Shape`, and :class:`ValueCastable` subclasses may have
+        a richer representation of their shape provided by an instance of a :class:`ShapeCastable`
+        subclass. This method may return such a representation.
+
+        This method must be idempotent: when called twice on the same object, the result must be
+        exactly the same.
+
+        The following condition must hold:
+
+        .. code::
+
+            Shape.cast(self.shape()) == Value.cast(self).shape()
+
+        Returns
+        -------
+        A :ref:`shape-like <lang-shapelike>` object.
+
+        Raises
+        ------
+        Exception
+            When the conversion cannot be done. This exception must be propagated by callers,
+            either directly or as a cause of another exception.
+
+            It is recommended that, in cases where this method raises an exception,
+            the :meth:`as_value` method also raises an exception.
+        """
+        ...
 
 @final
 class Sample(Value):
@@ -477,7 +1196,14 @@ class Initial(Value):
 
 class _FormatLike:
     def __add__(self, other) -> Format: ...
-    def __format__(self, format_desc) -> NoReturn: ...
+    def __format__(self, format_desc) -> NoReturn:
+        """
+        Forbidden formatting.
+
+        ``Format`` objects cannot be directly formatted for the same reason as the ``Value``s
+        they contain.
+        """
+        ...
 
 @final
 class Format(_FormatLike):
