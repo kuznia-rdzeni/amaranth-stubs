@@ -23,6 +23,7 @@ from typing import Sequence
 from amaranth.hdl import IOValue, ShapeCastable, ValueCastable
 from amaranth.lib.data import Layout
 from amaranth.sim._pycoro import Command
+from .monkey import *
 
 if TYPE_CHECKING:
     from amaranth.hdl._ast import Statement
