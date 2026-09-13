@@ -1,4 +1,3 @@
-
 __all__ = ["UnusedMustUse", "MustUse"]
 
 class UnusedMustUse(Warning):
