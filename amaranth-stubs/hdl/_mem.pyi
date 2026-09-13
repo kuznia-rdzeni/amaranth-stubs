@@ -11,6 +11,36 @@ __all__ = ["MemoryData", "Memory", "ReadPort", "WritePort", "DummyPort"]
 
 @final
 class MemoryData:
+    r"""
+    Abstract description of a memory array.
+
+    A :class:`MemoryData` object describes the geometry (shape and depth) and the initial contents
+    of a memory array, without specifying the way in which it is accessed. It is conceptually
+    similar to an array of :class:`Signal`\ s.
+
+    The :py:`init` parameter and assignment to the :py:`init` attribute have the same effect, with
+    :class:`MemoryData.Init` converting elements of the iterable to match :py:`shape` and using
+    a default value for rows that are not explicitly initialized.
+
+    Changing the initial contents of a :class:`MemoryData` is only possible until it is used to
+    elaborate a memory; afterwards, attempting to do so will raise the :class:`AlreadyElaborated`
+    exception.
+
+    .. warning::
+
+        Uninitialized memories (including ASIC memories and some FPGA memories) are
+        `not yet supported <https://github.com/amaranth-lang/amaranth/issues/270>`_, and
+        the :py:`init` parameter must be always provided, if only as :py:`init=[]`.
+
+    Parameters
+    ----------
+    shape : :ref:`shape-like <lang-shapelike>` object
+        Shape of each memory row.
+    depth : :class:`int`
+        Number of memory rows.
+    init : iterable of initial values
+        Initial values for memory rows.
+    """
     @final
     class Init(MutableSequence):
         """Memory initialization data.
@@ -35,7 +65,9 @@ class MemoryData:
         def __getitem__(self, index: int) -> ValueLike: ...
         def __setitem__(self, index: int, value: ValueLike) -> None: ...
         def __delitem__(self, index: int) -> NoReturn: ...
-        def insert(self, index: int, value: ValueLike) -> NoReturn: ...
+        def insert(self, index: int, value: ValueLike) -> NoReturn:
+            """:meta private:"""
+            ...
         def __len__(self) -> int: ...
         def __repr__(self) -> str: ...
 
@@ -50,7 +82,24 @@ class MemoryData:
     @init.setter
     def init(self, init: Iterable[ValueLike]) -> None: ...
     def __repr__(self) -> str: ...
-    def __getitem__(self, index) -> ValueLike: ...
+    def __getitem__(self, index) -> ValueLike:
+        """
+        Retrieve a memory row for simulation.
+
+        A :class:`MemoryData` object can be indexed with an :class:`int` to construct a special
+        value that can be used to read and write the selected memory row in a simulation testbench,
+        without having to create a memory port.
+
+        .. tip::
+
+            Even in a simulation, the value returned by this function cannot be used in a module;
+            it can only be used with :py:`sim.get()` and :py:`sim.set()`.
+
+        Returns
+        -------
+        :class:`~amaranth.hdl.Value`, :ref:`assignable <lang-assignable>`
+        """
+        ...
 
 class Memory:
     """A word addressable storage.

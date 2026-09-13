@@ -50,16 +50,148 @@ class EnumType(ShapeCastable, py_enum.EnumType):
         ...
 
     @overload
-    def __call__(cls: type[_T], value: int) -> _T: ...
+    def __call__(cls: type[_T], value: int) -> _T:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
     @overload
-    def __call__(cls: type[_T], value: _T) -> _T: ...
+    def __call__(cls: type[_T], value: _T) -> _T:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
     @overload
-    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value: ...
+    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
     @overload
-    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]: ...
+    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
     @overload
-    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]: ...
-    def __call__(cls, value: ValueLike) -> ValueLike: ...
+    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
+    def __call__(cls, value: ValueLike) -> ValueLike:
+        """
+        Cast the value to this enum type.
+
+        When given an integer constant, it returns the corresponding enum value, like a standard
+        Python enumeration.
+
+        When given a :ref:`value-like <lang-valuelike>`, it is cast to a value, then wrapped
+        in the ``view_class`` specified for this enum type (:class:`EnumView` for :class:`Enum`,
+        :class:`FlagView` for :class:`Flag`, or a custom user-defined class). If the type has no
+        ``view_class`` (like :class:`IntEnum` or :class:`IntFlag`), a plain
+        :class:`Value` is returned.
+
+        Returns
+        -------
+        instance of itself
+            For integer values, or instances of itself.
+        :class:`EnumView` or its subclass
+            For value-castables, as defined by the ``view_class`` keyword argument.
+        :class:`Value`
+            For value-castables, when a view class is not specified for this enum.
+        """
+        ...
     @overload
     def const(cls: type[_T_IntEF], init: ValueLike | None) -> Value: ...
     @overload
@@ -101,11 +233,29 @@ class EnumView(ValueCastable, Generic[_T_Enum]):
     equality comparisons (``==`` and ``!=``) with another :class:`EnumView` of the same enum type.
     """
 
-    def __init__(self, enum: _T_Enum, target: ValueLike): ...
-    def shape(self) -> type[_T_Enum]: ...
+    def __init__(self, enum: _T_Enum, target: ValueLike):
+        """
+        Constructs a view with the given enum type and target
+        (a :ref:`value-like <lang-valuelike>`).
+        """
+        ...
+    def shape(self) -> type[_T_Enum]:
+        """Returns the underlying enum type."""
+        ...
     @ValueCastable.lowermethod
-    def as_value(self) -> Value: ...
-    def eq(self, other: ValueLike) -> Assign: ...
+    def as_value(self) -> Value:
+        """Returns the underlying value."""
+        ...
+    def eq(self, other: ValueLike) -> Assign:
+        """
+        Assign to the underlying value.
+
+        Returns
+        -------
+        :class:`Assign`
+            ``self.as_value().eq(other)``
+        """
+        ...
     def __eq__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value:
         """Compares the underlying value for equality.
 

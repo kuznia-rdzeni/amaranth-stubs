@@ -34,56 +34,584 @@ class Record(ValueCastable):
     @staticmethod
     def like(other: Record, *, name=..., name_suffix=..., src_loc_at=...) -> Record: ...
     def __init__(self, layout: LayoutLike, *, name=..., fields=..., src_loc_at=...) -> None: ...
-    def __bool__(self) -> NoReturn: ...
-    def __invert__(self) -> Value: ...
-    def __neg__(self) -> Value: ...
-    def __add__(self, other: ValueLike) -> Value: ...
-    def __radd__(self, other: ValueLike) -> Value: ...
-    def __sub__(self, other: ValueLike) -> Value: ...
-    def __rsub__(self, other: ValueLike) -> Value: ...
-    def __mul__(self, other: ValueLike) -> Value: ...
-    def __rmul__(self, other: ValueLike) -> Value: ...
-    def __mod__(self, other: ValueLike) -> Value: ...
-    def __rmod__(self, other: ValueLike) -> Value: ...
-    def __floordiv__(self, other: ValueLike) -> Value: ...
-    def __rfloordiv__(self, other: ValueLike) -> Value: ...
-    def __lshift__(self, other: ValueLike) -> Value: ...
-    def __rlshift__(self, other: ValueLike) -> Value: ...
-    def __rshift__(self, other: ValueLike) -> Value: ...
-    def __rrshift__(self, other: ValueLike) -> Value: ...
-    def __and__(self, other: ValueLike) -> Value: ...
-    def __rand__(self, other: ValueLike) -> Value: ...
-    def __xor__(self, other: ValueLike) -> Value: ...
-    def __rxor__(self, other: ValueLike) -> Value: ...
-    def __or__(self, other: ValueLike) -> Value: ...
-    def __ror__(self, other: ValueLike) -> Value: ...
-    def __eq__(self, other: ValueLike) -> Value: ...
-    def __ne__(self, other: ValueLike) -> Value: ...
-    def __lt__(self, other: ValueLike) -> Value: ...
-    def __le__(self, other: ValueLike) -> Value: ...
-    def __gt__(self, other: ValueLike) -> Value: ...
-    def __ge__(self, other: ValueLike) -> Value: ...
-    def __abs__(self) -> Value: ...
-    def as_unsigned(self) -> Value: ...
-    def as_signed(self) -> Value: ...
-    def bool(self) -> Value: ...
-    def any(self) -> Value: ...
-    def all(self) -> Value: ...
-    def xor(self) -> Value: ...
+    def __bool__(self) -> NoReturn:
+        """
+        Forbidden conversion to boolean.
+
+        Python uses this operator for its built-in semantics, e.g. :py:`if`, and requires it to
+        return a :class:`bool`. Since this is not possible for Amaranth values, this operator
+        always raises an exception.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            Always.
+        """
+        ...
+    def __invert__(self) -> Value:
+        """
+        Bitwise NOT, :py:`~self`.
+
+        The shape of the result is the same as the shape of :py:`self`, even for unsigned values.
+
+        .. warning::
+
+            In Python, :py:`~0` equals :py:`-1`. In Amaranth, :py:`~C(0)` equals :py:`C(1)`.
+            This is the only case where an Amaranth operator deviates from the Python operator
+            with the same name.
+
+            This deviation is necessary because Python does not allow overriding the logical
+            :py:`and`, :py:`or`, and :py:`not` operators. Amaranth uses :py:`&`, :py:`|`, and
+            :py:`~` instead; if it wasn't the case that :py:`~C(0) == C(1)`, that would have
+            been impossible.
+
+        Returns
+        -------
+        :class:`Value`, :py:`self.shape()`
+        """
+        ...
+    def __neg__(self) -> Value:
+        """
+        Unary negation, :py:`-self`.
+
+        ..
+            >>> C(-1).value, C(-1).shape()
+            -1, signed(1)
+            >>> C(-(-1), signed(1)).value # overflows
+            -1
+
+        Returns
+        -------
+        :class:`Value`, :py:`signed(len(self) + 1)`
+        """
+        ...
+    def __add__(self, other: ValueLike) -> Value:
+        """
+        Addition, :py:`self + other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1) + 1)`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __radd__(self, other: ValueLike) -> Value:
+        """
+        Addition, :py:`other + self` (reflected).
+
+        Like :meth:`__add__`, with operands swapped.
+        """
+        ...
+    def __sub__(self, other: ValueLike) -> Value:
+        """
+        Subtraction, :py:`self - other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1) + 1)`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()) + 1)`
+            If both :py:`self` and :py:`other` are unsigned.
+
+        Returns
+        -------
+        :class:`Value`
+        """
+        ...
+    def __rsub__(self, other: ValueLike) -> Value:
+        """
+        Subtraction, :py:`other - self` (reflected).
+
+        Like :meth:`__sub__`, with operands swapped.
+        """
+        ...
+    def __mul__(self, other: ValueLike) -> Value:
+        """
+        Multiplication, :py:`self * other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self) + len(other))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(len(self) + len(other))`
+            If either :py:`self` or :py:`other` are signed.
+        """
+        ...
+    def __rmul__(self, other: ValueLike) -> Value:
+        """
+        Multiplication, :py:`other * self` (reflected).
+
+        Like :meth:`__mul__`, with operands swapped.
+        """
+        ...
+    def __mod__(self, other: ValueLike) -> Value:
+        """
+        Flooring modulo or remainder, :py:`self % other`.
+
+        If :py:`other` is zero, the result of this operation is zero.
+
+        Returns
+        -------
+        :class:`Value`, :py:`other.shape()`
+        """
+        ...
+    def __rmod__(self, other: ValueLike) -> Value:
+        """
+        Flooring modulo or remainder, :py:`other % self` (reflected).
+
+        Like :meth:`__mod__`, with operands swapped.
+        """
+        ...
+    def __floordiv__(self, other: ValueLike) -> Value:
+        """
+        Flooring division, :py:`self // other`.
+
+        If :py:`other` is zero, the result of this operation is zero.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(len(self) + 1)`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(len(self))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(len(self) + 1)`
+            If both :py:`self` and :py:`other` are signed.
+        """
+        ...
+    def __rfloordiv__(self, other: ValueLike) -> Value:
+        """
+        Flooring division, :py:`other // self` (reflected).
+
+        If :py:`self` is zero, the result of this operation is zero.
+
+        Like :meth:`__floordiv__`, with operands swapped.
+        """
+        ...
+    def __lshift__(self, other: ValueLike) -> Value:
+        """
+        Left shift by variable amount, :py:`self << other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self) + 2 ** len(other) - 1)`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(len(self) + 2 ** len(other) - 1)`
+            If :py:`self` is signed.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`other` is signed.
+        """
+        ...
+    def __rlshift__(self, other: ValueLike) -> Value:
+        """
+        Left shift by variable amount, :py:`other << self`.
+
+        Like :meth:`__lshift__`, with operands swapped.
+        """
+        ...
+    def __rshift__(self, other: ValueLike) -> Value:
+        """
+        Right shift by variable amount, :py:`self >> other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(len(self))`
+            If :py:`self` is signed.
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`other` is signed.
+        """
+        ...
+    def __rrshift__(self, other: ValueLike) -> Value:
+        """
+        Right shift by variable amount, :py:`other >> self`.
+
+        Like :meth:`__rshift__`, with operands swapped.
+        """
+        ...
+    def __and__(self, other: ValueLike) -> Value:
+        """
+        Bitwise AND, :py:`self & other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __rand__(self, other: ValueLike) -> Value:
+        """
+        Bitwise AND, :py:`other & self`.
+
+        Like :meth:`__and__`, with operands swapped.
+        """
+        ...
+    def __xor__(self, other: ValueLike) -> Value:
+        """
+        Bitwise XOR, :py:`self ^ other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __rxor__(self, other: ValueLike) -> Value:
+        """
+        Bitwise XOR, :py:`other ^ self`.
+
+        Like :meth:`__xor__`, with operands swapped.
+        """
+        ...
+    def __or__(self, other: ValueLike) -> Value:
+        """
+        Bitwise OR, :py:`self | other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        :class:`Value`, :py:`signed(max(self.width() + 1, other.width()))`
+            If :py:`self` is unsigned and :py:`other` is signed.
+        :class:`Value`, :py:`signed(max(self.width(), other.width() + 1))`
+            If :py:`self` is signed and :py:`other` is unsigned.
+        :class:`Value`, :py:`signed(max(self.width(), other.width()))`
+            If both :py:`self` and :py:`other` are unsigned.
+        """
+        ...
+    def __ror__(self, other: ValueLike) -> Value:
+        """
+        Bitwise OR, :py:`other | self`.
+
+        Like :meth:`__or__`, with operands swapped.
+        """
+        ...
+    def __eq__(self, other: ValueLike) -> Value:
+        """
+        Equality comparison, :py:`self == other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __ne__(self, other: ValueLike) -> Value:
+        """
+        Inequality comparison, :py:`self != other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __lt__(self, other: ValueLike) -> Value:
+        """
+        Less than comparison, :py:`self < other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __le__(self, other: ValueLike) -> Value:
+        """
+        Less than or equals comparison, :py:`self <= other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __gt__(self, other: ValueLike) -> Value:
+        """
+        Greater than comparison, :py:`self > other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __ge__(self, other: ValueLike) -> Value:
+        """
+        Greater than or equals comparison, :py:`self >= other`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def __abs__(self) -> Value:
+        """
+        Absolute value, :py:`abs(self)`.
+
+        ..
+            >>> abs(C(-1)).shape()
+            unsigned(1)
+            >>> C(1).shape()
+            unsigned(1)
+
+        Return
+        ------
+        :class:`Value`, :py:`unsigned(len(self))`
+        """
+        ...
+    def as_unsigned(self) -> Value:
+        """
+        Reinterpretation as an unsigned value.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
+        ...
+    def as_signed(self) -> Value:
+        """
+        Reinterpretation as a signed value.
+
+        Returns
+        -------
+        :class:`Value`, :py:`signed(len(self))`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        ValueError
+            If :py:`len(self) == 0`.
+        """
+        ...
+    def bool(self) -> Value:
+        """
+        Conversion to boolean.
+
+        Returns the same value as :meth:`any`, but should be used where :py:`self` is semantically
+        a number.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def any(self) -> Value:
+        """
+        Reduction OR; is any bit :py:`1`?
+
+        Performs the same operation as :meth:`bool`, but should be used where :py:`self` is
+        semantically a bit sequence.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def all(self) -> Value:
+        """
+        Reduction AND; are all bits :py:`1`?
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
+    def xor(self) -> Value:
+        """
+        Reduction XOR; are an odd amount of bits :py:`1`?
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+        """
+        ...
     def implies(premise, conclusion: ValueLike) -> Value: ...
-    def bit_select(self, offset: ValueLike, width: int) -> Value: ...
-    def word_select(self, offset: ValueLike, width: int) -> Value: ...
-    def matches(self, *patterns) -> Value: ...
-    def shift_left(self, amount: int) -> Value: ...
-    def shift_right(self, amount: int) -> Value: ...
-    def rotate_left(self, amount: int) -> Value: ...
-    def rotate_right(self, amount: int) -> Value: ...
-    def eq(self, value: ValueLike) -> Assign: ...
+    def bit_select(self, offset: ValueLike, width: int) -> Value:
+        """
+        Part-select with bit granularity.
+
+        Selects a constant width, variable offset part of :py:`self`, where parts with successive
+        offsets overlap by :py:`width - 1` bits. Bits above the most significant bit of :py:`self`
+        may be selected; they are equal to zero if :py:`self` is unsigned, to :py:`self[-1]` if
+        :py:`self` is signed, and assigning to them does nothing.
+
+        When :py:`offset` is a constant integer and :py:`offset + width <= len(self)`,
+        this operation is equivalent to :py:`self[offset:offset + width]`.
+
+        Parameters
+        ----------
+        offset: :ref:`value-like <lang-valuelike>`
+            Index of the first selected bit.
+        width: :class:`int`
+            Amount of bits to select.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(width)`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`offset` is signed.
+        :exc:`TypeError`
+            If :py:`width` is negative.
+        """
+        ...
+    def word_select(self, offset: ValueLike, width: int) -> Value:
+        """
+        Part-select with word granularity.
+
+        Selects a constant width, variable offset part of :py:`self`, where parts with successive
+        offsets are adjacent but do not overlap. Bits above the most significant bit of :py:`self`
+        may be selected; they are equal to zero if :py:`self` is unsigned, to :py:`self[-1]` if
+        :py:`self` is signed, and assigning to them does nothing.
+
+        When :py:`offset` is a constant integer and :py:`width:(offset + 1) * width <= len(self)`,
+        this operation is equivalent to :py:`self[offset * width:(offset + 1) * width]`.
+
+        Parameters
+        ----------
+        offset: :ref:`value-like <lang-valuelike>`
+            Index of the first selected word.
+        width: :class:`int`
+            Amount of bits to select.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(width)`, :ref:`assignable <lang-assignable>`
+
+        Raises
+        ------
+        :exc:`TypeError`
+            If :py:`offset` is signed.
+        :exc:`TypeError`
+            If :py:`width` is negative.
+        """
+        ...
+    def matches(self, *patterns) -> Value:
+        """
+        Pattern matching.
+
+        Matches against a set of patterns, recognizing the same grammar as :py:`with m.Case()`.
+        The pattern syntax is described in the :ref:`language guide <lang-matchop>`.
+
+        Each of the :py:`patterns` may be a :class:`str` or a :ref:`constant-castable object
+        <lang-constcasting>`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(1)`
+
+        Raises
+        ------
+        :exc:`SyntaxError`
+            If a pattern has invalid syntax.
+        """
+        ...
+    def shift_left(self, amount: int) -> Value:
+        """
+        Left shift by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.shift_right(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(len(self) + amount, 0))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(max(len(self) + amount, 1))`
+            If :py:`self` is signed.
+        """
+        ...
+    def shift_right(self, amount: int) -> Value:
+        """
+        Right shift by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.shift_left(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(max(len(self) - amount, 0))`
+            If :py:`self` is unsigned.
+        :class:`Value`, :py:`signed(max(len(self) - amount, 1))`
+            If :py:`self` is signed.
+        """
+        ...
+    def rotate_left(self, amount: int) -> Value:
+        """
+        Left rotate by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.rotate_right(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
+        ...
+    def rotate_right(self, amount: int) -> Value:
+        """
+        Right rotate by constant amount.
+
+        If :py:`amount < 0`, performs the same operation as :py:`self.rotate_left(-amount)`.
+
+        Returns
+        -------
+        :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
+        """
+        ...
+    def eq(self, value: ValueLike) -> Assign:
+        r"""
+        :ref:`Assignment <lang-assigns>`.
+
+        Once it is placed in a domain, an assignment changes the bit pattern of :py:`self` to
+        equal :py:`value`. If the bit width of :py:`value` is less than that of :py:`self`,
+        it is zero-extended (for unsigned :py:`value`\ s) or sign-extended (for signed
+        :py:`value`\ s). If the bit width of :py:`value` is greater than that of :py:`self`,
+        it is truncated.
+
+        Returns
+        -------
+        :class:`Statement`
+        """
+        ...
     def __getattr__(self, name: str): ...
     def __getitem__(self, item: str | tuple | int | slice): ...
     @ValueCastable.lowermethod
     def as_value(self) -> Value: ...
-    def __len__(self) -> int: ...
+    def __len__(self) -> int:
+        """
+        Bit width of :py:`self`.
+
+        Returns
+        -------
+        :class:`int`
+            :py:`self.shape().width`
+        """
+        ...
     def __repr__(self) -> str: ...
     def shape(self) -> Shape: ...
     def connect(self, *subordinates, include=..., exclude=...): ...
