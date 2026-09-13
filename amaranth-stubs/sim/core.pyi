@@ -12,55 +12,55 @@ from ._async import DomainReset, BrokenTrigger, ProcessContext, TestbenchContext
 from amaranth_types import TestGenerator, TestCoroutine
 
 __all__ = [
-    "DomainReset", "BrokenTrigger",
+    "DomainReset",
+    "BrokenTrigger",
     "Simulator",
     # deprecated
-    "Settle", "Delay", "Tick", "Passive", "Active",
+    "Settle",
+    "Delay",
+    "Tick",
+    "Passive",
+    "Active",
 ]
 
 class Simulator:
-    def __init__(self, fragment, *, engine=...) -> None:
-        ...
-    
-    def add_process(self, process: Callable[[], TestGenerator[None]] | Callable[[ProcessContext], TestCoroutine[None]]) -> None:
-        ...
-    
-    def add_testbench(self, process: Callable[[], TestGenerator[None]] | Callable[[TestbenchContext], TestCoroutine[None]], *, background: bool = False) -> None:
-        ...
-
+    def __init__(self, fragment, *, engine=...) -> None: ...
+    def add_process(
+        self, process: Callable[[], TestGenerator[None]] | Callable[[ProcessContext], TestCoroutine[None]]
+    ) -> None: ...
+    def add_testbench(
+        self,
+        process: Callable[[], TestGenerator[None]] | Callable[[TestbenchContext], TestCoroutine[None]],
+        *,
+        background: bool = False,
+    ) -> None: ...
     def add_clock(self, period, *, phase=..., domain=..., if_exists=...):
         """Add a clock process.
 
         Ad"""
         ...
-    
-    def reset(self): # -> None:
+
+    def reset(self):  # -> None:
         """Reset the simulation.
 
         A"""
         ...
-    
-    @deprecated("instead of `sim.step()`, use `si")
-    def step(self): # -> bool:
-        ...
-    
-    def advance(self): # -> bool:
-        """Advance the simulation.
 
-       """
+    @deprecated("instead of `sim.step()`, use `si")
+    def step(self):  # -> bool:
         ...
-    
-    def run(self): # -> None:
+    def advance(self):  # -> bool:
+        """Advance the simulation."""
+        ...
+
+    def run(self):  # -> None:
         """Run the simulation while any pro"""
         ...
-    
-    def run_until(self, deadline, *, run_passive=...): # -> None:
+
+    def run_until(self, deadline, *, run_passive=...):  # -> None:
         """Run the simulation until it adva"""
         ...
-    
-    def write_vcd(self, vcd_file, gtkw_file=..., *, traces=..., fs_per_delta=...): # -> _GeneratorContextManager[None]:
+
+    def write_vcd(self, vcd_file, gtkw_file=..., *, traces=..., fs_per_delta=...):  # -> _GeneratorContextManager[None]:
         """Write waveforms to a Value Chang"""
         ...
-    
-
-

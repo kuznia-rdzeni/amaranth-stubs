@@ -6,14 +6,8 @@ __all__ = ["YosysError", "YosysBinary", "find_yosys"]
 from typing import Optional
 from pathlib import Path
 
-
-class YosysError(Exception):
-    ...
-
-
-class YosysWarning(Warning):
-    ...
-
+class YosysError(Exception): ...
+class YosysWarning(Warning): ...
 
 class YosysBinary:
     @classmethod
@@ -27,7 +21,7 @@ class YosysBinary:
             be runnable, or might be too old to be useful.
         """
         ...
-    
+
     @classmethod
     def version(cls) -> Optional[tuple[int, int, int]]:
         """Get Yosys version.
@@ -44,7 +38,7 @@ class YosysBinary:
             Distance to last tag per ``git describe``. May not be exact for system Yosys.
         """
         ...
-    
+
     @classmethod
     def data_dir(cls) -> Path:
         """Get Yosys data directory.
@@ -55,9 +49,9 @@ class YosysBinary:
             Yosys data directory (also known as "datdir").
         """
         ...
-    
+
     @classmethod
-    def run(cls, args: list[str], stdin: str=...) -> str:
+    def run(cls, args: list[str], stdin: str = ...) -> str:
         """Run Yosys process.
 
         Parameters
@@ -79,48 +73,32 @@ class YosysBinary:
             output.
         """
         ...
-    
-
 
 class _BuiltinYosys(YosysBinary):
     YOSYS_PACKAGE = ...
     @classmethod
-    def available(cls): # -> bool:
+    def available(cls):  # -> bool:
         ...
-    
     @classmethod
-    def version(cls): # -> tuple[int, int, int]:
+    def version(cls):  # -> tuple[int, int, int]:
         ...
-    
     @classmethod
-    def data_dir(cls): # -> Traversable:
+    def data_dir(cls):  # -> Traversable:
         ...
-    
     @classmethod
-    def run(cls, args, stdin=..., *, ignore_warnings=..., src_loc_at=...):
-        ...
-    
-
+    def run(cls, args, stdin=..., *, ignore_warnings=..., src_loc_at=...): ...
 
 class _SystemYosys(YosysBinary):
     YOSYS_BINARY = ...
     @classmethod
-    def available(cls) -> bool:
-        ...
-    
+    def available(cls) -> bool: ...
     @classmethod
-    def version(cls): # -> tuple[int, int, int] | None:
+    def version(cls):  # -> tuple[int, int, int] | None:
         ...
-    
     @classmethod
-    def data_dir(cls) -> Path:
-        ...
-    
+    def data_dir(cls) -> Path: ...
     @classmethod
-    def run(cls, args, stdin=..., *, ignore_warnings=..., src_loc_at=...):
-        ...
-    
-
+    def run(cls, args, stdin=..., *, ignore_warnings=..., src_loc_at=...): ...
 
 def find_yosys(requirement):
     """Find an available Yosys executable of required version.
@@ -141,4 +119,3 @@ def find_yosys(requirement):
         Raised if required Yosys version is not found.
     """
     ...
-

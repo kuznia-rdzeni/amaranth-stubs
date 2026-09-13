@@ -7,18 +7,15 @@ from typing import Generic, TypeVar, overload
 from amaranth import *
 from ..hdl._ast import Assign, ValueCastable, ShapeCastable, ShapeLike, ValueLike, Format
 
-__all__ = ['EnumType', 'Enum', 'IntEnum', 'Flag', 'IntFlag', 'EnumView', 'FlagView', 'auto', 'unique']
-
+__all__ = ["EnumType", "Enum", "IntEnum", "Flag", "IntFlag", "EnumView", "FlagView", "auto", "unique"]
 
 _T = TypeVar("_T")
 _T_Enum = TypeVar("_T_Enum", bound=Enum, default=Enum)
 _T_Flag = TypeVar("_T_Flag", bound=Flag, default=Flag)
 _T_IntEF = TypeVar("_T_IntEF", bound=IntEnum | IntFlag)
 
-
 auto = py_enum.auto
 unique = py_enum.unique
-
 
 class EnumType(ShapeCastable, py_enum.EnumType):
     """Subclass of the standard :class:`enum.EnumType` that implements the :class:`ShapeCastable`
@@ -33,9 +30,9 @@ class EnumType(ShapeCastable, py_enum.EnumType):
     """
     # Shape is required because if not passed, Amaranth enums revert to Python enum behavior
     # which is not compatible with this typing.
-    def __new__(cls, name, bases, namespace, shape: ShapeLike, view_class: ValueCastable | None=..., **kwargs) -> EnumType:
-        ...
-    
+    def __new__(
+        cls, name, bases, namespace, shape: ShapeLike, view_class: ValueCastable | None = ..., **kwargs
+    ) -> EnumType: ...
     def as_shape(cls) -> Shape:
         """Cast this enumeration to a shape.
 
@@ -51,75 +48,51 @@ class EnumType(ShapeCastable, py_enum.EnumType):
             If the enumeration has neither an explicitly provided shape nor any members.
         """
         ...
-    
-    @overload
-    def __call__(cls: type[_T], value: int) -> _T:
-        ...
 
     @overload
-    def __call__(cls: type[_T], value: _T) -> _T:
-        ...
-
+    def __call__(cls: type[_T], value: int) -> _T: ...
     @overload
-    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value:
-        ...
-
+    def __call__(cls: type[_T], value: _T) -> _T: ...
     @overload
-    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]:
-        ...
-
+    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value: ...
     @overload
-    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]:
-        ...
-
-    def __call__(cls, value: ValueLike) -> ValueLike:
-        ...
-    
+    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]: ...
     @overload
-    def const(cls: type[_T_IntEF], init: ValueLike | None) -> Value:
-        ...
-
+    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]: ...
+    def __call__(cls, value: ValueLike) -> ValueLike: ...
     @overload
-    def const(cls: type[_T_Enum], init: ValueLike | None) -> EnumView[_T_Enum]:
-        ...
-
+    def const(cls: type[_T_IntEF], init: ValueLike | None) -> Value: ...
     @overload
-    def const(cls: type[_T_Flag], init: ValueLike | None) -> FlagView[_T_Flag]:
-        ...
-
-    def const(cls, init: ValueLike | None) -> ValueLike:
-        ...
-
-    def from_bits(cls: type[_T], bits: int) -> _T:
-        ...
-
-    def format(cls, value: ValueLike, format_spec: str) -> Format:
-        ...
-    
+    def const(cls: type[_T_Enum], init: ValueLike | None) -> EnumView[_T_Enum]: ...
+    @overload
+    def const(cls: type[_T_Flag], init: ValueLike | None) -> FlagView[_T_Flag]: ...
+    def const(cls, init: ValueLike | None) -> ValueLike: ...
+    def from_bits(cls: type[_T], bits: int) -> _T: ...
+    def format(cls, value: ValueLike, format_spec: str) -> Format: ...
 
 class Enum(py_enum.Enum, metaclass=EnumType):
     """Subclass of the standard :class:`enum.Enum` that has :class:`EnumType` as
     its metaclass."""
-    ...
 
+    ...
 
 class IntEnum(py_enum.IntEnum, metaclass=EnumType):
     """Subclass of the standard :class:`enum.IntEnum` that has :class:`EnumType` as
     its metaclass."""
-    ...
 
+    ...
 
 class Flag(py_enum.Flag, metaclass=EnumType):
     """Subclass of the standard :class:`enum.Flag` that has :class:`EnumType` as
     its metaclass."""
-    ...
 
+    ...
 
 class IntFlag(py_enum.IntFlag, metaclass=EnumType):
     """Subclass of the standard :class:`enum.IntFlag` that has :class:`EnumType` as
     its metaclass."""
-    ...
 
+    ...
 
 class EnumView(ValueCastable, Generic[_T_Enum]):
     """The view class used for :class:`Enum`.
@@ -128,19 +101,11 @@ class EnumView(ValueCastable, Generic[_T_Enum]):
     equality comparisons (``==`` and ``!=``) with another :class:`EnumView` of the same enum type.
     """
 
-    def __init__(self, enum: _T_Enum, target: ValueLike):
-        ...
-
-    def shape(self) -> type[_T_Enum]:
-        ...
-
+    def __init__(self, enum: _T_Enum, target: ValueLike): ...
+    def shape(self) -> type[_T_Enum]: ...
     @ValueCastable.lowermethod
-    def as_value(self) -> Value:
-        ...
-
-    def eq(self, other: ValueLike) -> Assign:
-        ...
-
+    def as_value(self) -> Value: ...
+    def eq(self, other: ValueLike) -> Assign: ...
     def __eq__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value:
         """Compares the underlying value for equality.
 
@@ -154,10 +119,7 @@ class EnumView(ValueCastable, Generic[_T_Enum]):
         """
         ...
 
-    def __ne__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value:
-        ...
-
-
+    def __ne__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value: ...
 
 class FlagView(EnumView[_T_Flag], Generic[_T_Flag]):
     """The view class used for :class:`Flag`.
@@ -217,6 +179,3 @@ class FlagView(EnumView[_T_Flag], Generic[_T_Flag]):
     __rand__ = __and__
     __ror__ = __or__
     __rxor__ = __xor__
-
-
-

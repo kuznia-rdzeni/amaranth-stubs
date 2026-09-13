@@ -7,17 +7,15 @@ from collections.abc import Iterable
 
 from amaranth.hdl import MemoryInstance, Value, ValueCastable
 
-from amaranth_types.types import ShapeCastable, ShapeLike, FlatShapeLike, ValueLike, FlatValueLike
+from amaranth_types.types import ShapeCastable, ShapeLike, FlatShapeLike, ValueLike
 from ..hdl import MemoryData, Signal
 from . import wiring
 
 __all__ = ["Memory", "ReadPort", "WritePort"]
 
-
 _T_ValueOrValueCastable = TypeVar("_T_ValueOrValueCastable", bound=Value | ValueCastable, covariant=True)
 _T_ShapeLike = TypeVar("_T_ShapeLike", bound=ShapeLike, covariant=True)
 _T_FlatShapeLike = TypeVar("_T_FlatShapeLike", bound=FlatShapeLike, covariant=True)
-
 
 class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     """Addressable array of rows.
@@ -53,48 +51,67 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     Define the :py:`get_memory()` platform method to override the implementation of
     :class:`Memory`, e.g. to instantiate library cells directly.
     """
+
     Init = MemoryData.Init
 
     @overload
-    def __init__(self: Memory[ShapeCastable[_T_ValueOrValueCastable], _T_ValueOrValueCastable], data: None = ..., *, shape: ShapeCastable[_T_ValueOrValueCastable] = ..., depth: int = ..., init: Iterable[ValueLike] = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
-        ...
-
+    def __init__(
+        self: Memory[ShapeCastable[_T_ValueOrValueCastable], _T_ValueOrValueCastable],
+        data: None = ...,
+        *,
+        shape: ShapeCastable[_T_ValueOrValueCastable] = ...,
+        depth: int = ...,
+        init: Iterable[ValueLike] = ...,
+        attrs: Optional[dict[str, str]] = ...,
+        src_loc_at: int = ...,
+    ) -> None: ...
     @overload
-    def __init__(self: Memory[_T_FlatShapeLike, Value], data: None = ..., *, shape: _T_FlatShapeLike = ..., depth: int = ..., init: Iterable[ValueLike] = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
-        ...
-
+    def __init__(
+        self: Memory[_T_FlatShapeLike, Value],
+        data: None = ...,
+        *,
+        shape: _T_FlatShapeLike = ...,
+        depth: int = ...,
+        init: Iterable[ValueLike] = ...,
+        attrs: Optional[dict[str, str]] = ...,
+        src_loc_at: int = ...,
+    ) -> None: ...
     @overload
-    def __init__(self: Memory[_T_ShapeLike, Value], data: MemoryData = ..., *, shape: None = ..., depth: None = ..., init: None = ..., attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
-        ...
-
-    def __init__(self, data: Optional[MemoryData] = None, *, shape: Optional[ShapeLike] = None, depth: Optional[int] = None, init: Optional[Iterable[ValueLike]] = None, attrs: Optional[dict[str, str]] = ..., src_loc_at: int = ...) -> None:
-        ...
-    
+    def __init__(
+        self: Memory[_T_ShapeLike, Value],
+        data: MemoryData = ...,
+        *,
+        shape: None = ...,
+        depth: None = ...,
+        init: None = ...,
+        attrs: Optional[dict[str, str]] = ...,
+        src_loc_at: int = ...,
+    ) -> None: ...
+    def __init__(
+        self,
+        data: Optional[MemoryData] = None,
+        *,
+        shape: Optional[ShapeLike] = None,
+        depth: Optional[int] = None,
+        init: Optional[Iterable[ValueLike]] = None,
+        attrs: Optional[dict[str, str]] = ...,
+        src_loc_at: int = ...,
+    ) -> None: ...
     @property
-    def data(self) -> MemoryData:
-        ...
-    
+    def data(self) -> MemoryData: ...
     @property
-    def shape(self) -> ShapeLike:
-        ...
-    
+    def shape(self) -> ShapeLike: ...
     @property
-    def depth(self) -> int:
-        ...
-    
+    def depth(self) -> int: ...
     @property
-    def init(self) -> Init:
-        ...
-    
+    def init(self) -> Init: ...
     @init.setter
-    def init(self, init: Init) -> None:
-        ...
-    
+    def init(self, init: Init) -> None: ...
     @property
-    def attrs(self) -> dict[str, str]:
-        ...
-    
-    def read_port(self, *, domain: str = ..., transparent_for: Iterable[WritePort] = ..., src_loc_at: int = ...) -> ReadPort[_T_ShapeLike, _T_ValueOrValueCastable]:
+    def attrs(self) -> dict[str, str]: ...
+    def read_port(
+        self, *, domain: str = ..., transparent_for: Iterable[WritePort] = ..., src_loc_at: int = ...
+    ) -> ReadPort[_T_ShapeLike, _T_ValueOrValueCastable]:
         """Request a read port.
 
         If :py:`domain` is :py:`"comb"`, the created read port is asynchronous and always enabled
@@ -120,8 +137,10 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         :class:`ReadPort`
         """
         ...
-    
-    def write_port(self, *, domain: str = ..., granularity: Optional[int] = ..., src_loc_at: int = ...) -> WritePort[_T_ShapeLike, _T_ValueOrValueCastable]:
+
+    def write_port(
+        self, *, domain: str = ..., granularity: Optional[int] = ..., src_loc_at: int = ...
+    ) -> WritePort[_T_ShapeLike, _T_ValueOrValueCastable]:
         """Request a write port.
 
         The created write port is synchronous, updating the contents of the selected row at each
@@ -141,7 +160,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         :class:`WritePort`
         """
         ...
-    
+
     @property
     def read_ports(self) -> tuple[ReadPort, ...]:
         """All read ports defined so far.
@@ -149,7 +168,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         This property is provided for the :py:`platform.get_memory()` override.
         """
         ...
-    
+
     @property
     def write_ports(self) -> tuple[WritePort, ...]:
         """All write ports defined so far.
@@ -157,11 +176,8 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         This property is provided for the :py:`platform.get_memory()` override.
         """
         ...
-    
-    def elaborate(self, platform) -> MemoryInstance:
-        ...
-    
 
+    def elaborate(self, platform) -> MemoryInstance: ...
 
 class ReadPort(Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     """A read memory port.
@@ -202,59 +218,44 @@ class ReadPort(Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         data: :py:`Out(shape)`
             Data output.
         """
-        def __init__(self, *, addr_width: int, shape: _T_ShapeLike) -> None:
-            ...
-        
-        def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int =...) -> ReadPort[_T_ShapeLike, _T_ValueOrValueCastable]:
+        def __init__(self, *, addr_width: int, shape: _T_ShapeLike) -> None: ...
+        def create(
+            self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...
+        ) -> ReadPort[_T_ShapeLike, _T_ValueOrValueCastable]:
             """:meta private:"""
             ...
-        
+
         @property
-        def addr_width(self) -> int:
-            ...
-        
+        def addr_width(self) -> int: ...
         @property
-        def shape(self) -> _T_ShapeLike:
-            ...
-        
-        def __eq__(self, other) -> bool:
-            ...
-        
-        def __repr__(self) -> str:
-            ...
+        def shape(self) -> _T_ShapeLike: ...
+        def __eq__(self, other) -> bool: ...
+        def __repr__(self) -> str: ...
 
     @property
-    def en(self) -> Signal:
-        ...
-
+    def en(self) -> Signal: ...
     @property
-    def addr(self) -> Signal:
-        ...
-
+    def addr(self) -> Signal: ...
     @property
-    def data(self) -> _T_ValueOrValueCastable:
-        ...
-
-    def __init__(self, signature: Signature, *, memory: Memory, domain: str, transparent_for: Iterable[WritePort] = ..., path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> None:
-        ...
-    
+    def data(self) -> _T_ValueOrValueCastable: ...
+    def __init__(
+        self,
+        signature: Signature,
+        *,
+        memory: Memory,
+        domain: str,
+        transparent_for: Iterable[WritePort] = ...,
+        path: tuple[str | int, ...] = ...,
+        src_loc_at: int = ...,
+    ) -> None: ...
     @property
-    def signature(self) -> Signature:
-        ...
-    
+    def signature(self) -> Signature: ...
     @property
-    def memory(self) -> Memory[_T_ShapeLike, _T_ValueOrValueCastable]:
-        ...
-    
+    def memory(self) -> Memory[_T_ShapeLike, _T_ValueOrValueCastable]: ...
     @property
-    def domain(self) -> str:
-        ...
-    
+    def domain(self) -> str: ...
     @property
-    def transparent_for(self) -> tuple[WritePort, ...]:
-        ...
-    
-
+    def transparent_for(self) -> tuple[WritePort, ...]: ...
 
 class WritePort(Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     """A write memory port.
@@ -301,56 +302,32 @@ class WritePort(Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
         data: :py:`In(shape)`
             Data input.
         """
-        def __init__(self, *, addr_width: int, shape: _T_ShapeLike, granularity: Optional[int] = ...) -> None:
-            ...
-        
-        def create(self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...) -> WritePort[_T_ShapeLike, _T_ValueOrValueCastable]:
+        def __init__(self, *, addr_width: int, shape: _T_ShapeLike, granularity: Optional[int] = ...) -> None: ...
+        def create(
+            self, *, path: tuple[str | int, ...] = ..., src_loc_at: int = ...
+        ) -> WritePort[_T_ShapeLike, _T_ValueOrValueCastable]:
             """:meta private:"""
             ...
-        
+
         @property
-        def addr_width(self) -> int:
-            ...
-        
+        def addr_width(self) -> int: ...
         @property
-        def shape(self) -> _T_ShapeLike:
-            ...
-        
+        def shape(self) -> _T_ShapeLike: ...
         @property
-        def granularity(self) -> Optional[int]:
-            ...
-        
-        def __eq__(self, other) -> bool:
-            ...
-        
-        def __repr__(self) -> str:
-            ...
+        def granularity(self) -> Optional[int]: ...
+        def __eq__(self, other) -> bool: ...
+        def __repr__(self) -> str: ...
 
     @property
-    def en(self) -> Signal:
-        ...
-
+    def en(self) -> Signal: ...
     @property
-    def addr(self) -> Signal:
-        ...
-
+    def addr(self) -> Signal: ...
     @property
-    def data(self) -> _T_ValueOrValueCastable:
-        ...
-    
-    def __init__(self, signature, *, memory, domain, path=..., src_loc_at=...) -> None:
-        ...
-    
+    def data(self) -> _T_ValueOrValueCastable: ...
+    def __init__(self, signature, *, memory, domain, path=..., src_loc_at=...) -> None: ...
     @property
-    def signature(self) -> Signature:
-        ...
-    
+    def signature(self) -> Signature: ...
     @property
-    def memory(self) -> Memory[_T_ShapeLike, _T_ValueOrValueCastable]:
-        ...
-    
+    def memory(self) -> Memory[_T_ShapeLike, _T_ValueOrValueCastable]: ...
     @property
-    def domain(self) -> str:
-        ...
-
-
+    def domain(self) -> str: ...
