@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 class Direction(enum.Enum):
-    """Represents a direction of an I/O port, or of an I/O buffer."""
+    """Represents direction of a library I/O port, or of an I/O buffer component."""
 
     #: Input direction (from world to Amaranth design)
     Input = "i"
@@ -53,84 +53,26 @@ class PortLike(metaclass=ABCMeta):
     @property
     @abstractmethod
     def direction(self) -> Direction:
-        """The direction of this port, as :class:`Direction`."""
+        """
+        Direction of the port.
+
+        Returns
+        -------
+        :class:`Direction`
+        """
         ...
 
     @abstractmethod
     def __len__(self) -> int:
-        """Returns the width of this port in bits."""
-        ...
+        """
+        Computes the width of the port.
 
-    @abstractmethod
-    def __getitem__(self, index: int | slice) -> PortLike:
-        """Slices the port, returning another :class:`PortLike` with a subset
-        of its bits.
-
-        The index can be a :class:`slice` or :class:`int`. If the index is
-        an :class:`int`, the result is a single-bit :class:`PortLike`."""
-        ...
-
-    @abstractmethod
-    def __invert__(self) -> PortLike:
-        """Returns a new :class:`PortLike` object like this one, but with inverted polarity.
-
-        The result should be such that using :class:`Buffer` on it is equivalent to using
-        :class:`Buffer` on the original, with added inverters on the :py:`i` and :py:`o` ports."""
-        ...
-
-    @abstractmethod
-    def __add__(self, other) -> PortLike:
-        """Concatenates two library I/O ports of the same type.
-        The direction of the resulting port is:
-        * The same as the direction of both, if the two ports have the same direction.
-        * :attr:`Direction.Input` if a bidirectional port is concatenated with an input port.
-        * :attr:`Direction.Output` if a bidirectional port is concatenated with an output port.
         Returns
         -------
-        :py:`type(self)`
-            A new :py:`type(self)` which contains wires from :py:`self` followed by wires
-            from :py:`other`, preserving their polarity inversion.
-        Raises
-        ------
-        :exc:`ValueError`
-            If an input port is concatenated with an output port.
-        :exc:`TypeError`
-            If :py:`self` and :py:`other` have different types.
+        :class:`int`
+            The number of wires (for single-ended library I/O ports) or wire pairs (for differential
+            library I/O ports) this port consists of.
         """
-        ...
-
-class SingleEndedPort(PortLike):
-    """Represents a single-ended I/O port with optional inversion.
-
-    Parameters
-    ----------
-    io : :class:`IOValue`
-        The raw I/O value being wrapped.
-    invert : :class:`bool` or iterable of :class:`bool`
-        If true, the electrical state of the physical pin will be opposite from the Amaranth value
-        (the ``*Buffer`` classes will insert inverters on :py:`o` and :py:`i` pins, as appropriate).
-
-        This can be used for various purposes:
-
-        - Normalizing active-low pins (such as ``CS_B``) to be active-high in Amaranth code
-        - Compensating for boards where an inverting level-shifter (or similar circuitry) was used
-          on the pin
-
-        If the value is a simple :class:`bool`, it is used for all bits of this port. If the value
-        is an iterable of :class:`bool`, the iterable must have the same length as :py:`io`, and
-        the inversion is specified per-bit.
-    direction : :class:`Direction` or :class:`str`
-        Represents the allowed directions of this port. If equal to :attr:`Direction.Input` or
-        :attr:`Direction.Output`, this port can only be used with buffers of matching direction.
-        If equal to :attr:`Direction.Bidir`, this port can be used with buffers of any direction.
-        If a string is passed, it is cast to :class:`Direction`.
-    """
-    def __init__(
-        self, io: IOValueLike, *, invert: bool | Iterable[bool] = ..., direction: str | Direction = ...
-    ) -> None: ...
-    @property
-    def io(self) -> IOValue:
-        """The :py:`io` argument passed to the constructor."""
         ...
 
     @property
@@ -141,15 +83,40 @@ class SingleEndedPort(PortLike):
 
     @property
     def direction(self) -> Direction:
-        """The :py:`direction` argument passed to the constructor, normalized to :class:`Direction`."""
+        """
+        Direction of the port.
+
+        Returns
+        -------
+        :class:`Direction`
+        """
         ...
 
     def __len__(self) -> int:
-        """Returns the width of this port in bits. Equal to :py:`len(self.io)`."""
+        """
+        Computes the width of the port.
+
+        Returns
+        -------
+        :class:`int`
+            The number of wires (for single-ended library I/O ports) or wire pairs (for differential
+            library I/O ports) this port consists of.
+        """
         ...
 
     def __invert__(self) -> SingleEndedPort:
-        """Returns a new :class:`SingleEndedPort` with the opposite value of :py:`invert`."""
+        """
+        Inverts polarity of the port.
+
+        Inverting polarity of a library I/O port has the same effect as adding inverters to
+        the :py:`i` and :py:`o` members of an I/O buffer component for that port.
+
+        Returns
+        -------
+        :class:`PortLike`
+            A new :class:`PortLike` instance of the same type as :py:`self`, containing the same
+            wires as this port, but with polarity inverted.
+        """
         ...
 
     def __getitem__(self, index: int | slice) -> SingleEndedPort:
@@ -160,8 +127,33 @@ class SingleEndedPort(PortLike):
         an :class:`int`, the result is a single-bit :class:`SingleEndedPort`."""
         ...
 
-    def __add__(self, other: SingleEndedPort) -> SingleEndedPort: ...
-    def __repr__(self) -> str: ...
+    def __add__(self, other: SingleEndedPort) -> SingleEndedPort:
+        """
+        Concatenates two library I/O ports of the same type.
+
+        The direction of the resulting port is:
+
+        * The same as the direction of both, if the two ports have the same direction.
+        * :attr:`Direction.Input` if a bidirectional port is concatenated with an input port.
+        * :attr:`Direction.Output` if a bidirectional port is concatenated with an output port.
+
+        Returns
+        -------
+        :py:`type(self)`
+            A new :py:`type(self)` which contains wires from :py:`self` followed by wires
+            from :py:`other`, preserving their polarity inversion.
+
+        Raises
+        ------
+        :exc:`ValueError`
+            If an input port is concatenated with an output port.
+        :exc:`TypeError`
+            If :py:`self` and :py:`other` have different types.
+        """
+        ...
+    def __repr__(self) -> str:
+        """Return repr(self)."""
+        ...
 
 class DifferentialPort(PortLike):
     """Represents a differential I/O port with optional inversion.
@@ -195,15 +187,9 @@ class DifferentialPort(PortLike):
         self, p: IOValueLike, n: IOValueLike, *, invert: bool | Iterable[bool] = ..., direction: str | Direction = ...
     ) -> None: ...
     @property
-    def p(self) -> IOValue:
-        """The :py:`p` argument passed to the constructor."""
-        ...
-
+    def p(self) -> IOValue: ...
     @property
-    def n(self) -> IOValue:
-        """The :py:`n` argument passed to the constructor."""
-        ...
-
+    def n(self) -> IOValue: ...
     @property
     def invert(self) -> tuple[bool, ...]:
         """The :py:`invert` argument passed to the constructor, normalized to a :class:`tuple`
@@ -211,18 +197,9 @@ class DifferentialPort(PortLike):
         ...
 
     @property
-    def direction(self) -> Direction:
-        """The :py:`direction` argument passed to the constructor, normalized to :class:`Direction`."""
-        ...
-
-    def __len__(self) -> int:
-        """Returns the width of this port in bits. Equal to :py:`len(self.p)` (and :py:`len(self.n)`)."""
-        ...
-
-    def __invert__(self) -> DifferentialPort:
-        """Returns a new :class:`DifferentialPort` with the opposite value of :py:`invert`."""
-        ...
-
+    def direction(self) -> Direction: ...
+    def __len__(self) -> int: ...
+    def __invert__(self) -> DifferentialPort: ...
     def __getitem__(self, index: int | slice) -> DifferentialPort:
         """Slices the port, returning another :class:`DifferentialPort` with a subset
         of its bits.

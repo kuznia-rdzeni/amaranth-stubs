@@ -482,70 +482,9 @@ class View(ValueCastable, Generic[_T_ShapeCastable]):
         ...
     @overload
     def __getitem__(self, key: str | ValueLike):  # having a defined type hard to work with
-        """
-        Slice the underlying value.
-
-        A field corresponding to :py:`key` is looked up in the layout. If the field's shape is
-        a shape-castable object that has a :meth:`~.ShapeCastable.__call__` method, it is called and
-        the result is returned. Otherwise, :meth:`~.ShapeCastable.as_shape` is called repeatedly on
-        the shape until either an object with a :meth:`~.ShapeCastable.__call__` method is reached,
-        or a :class:`.Shape` is returned. In the latter case, returns an unspecified Amaranth
-        expression with the right shape.
-
-        Arguments
-        ---------
-        key : :class:`str` or :class:`int` or :class:`.ValueCastable`
-            Name or index of a field.
-
-        Returns
-        -------
-        :class:`.Value` or :class:`.ValueCastable`, :ref:`assignable <lang-assignable>`
-            A slice of the underlying value defined by the field.
-
-        Raises
-        ------
-        :exc:`KeyError`
-            If the layout does not define a field corresponding to :py:`key`.
-        :exc:`TypeError`
-            If :py:`key` is a value-castable object, but the layout of the view is not
-            an :class:`ArrayLayout`.
-        :exc:`TypeError`
-            If :meth:`.ShapeCastable.__call__` does not return a value or a value-castable object.
-        """
         ...
     @overload
-    def __getitem__(self, key: slice) -> Self:
-        """
-        Slice the underlying value.
-
-        A field corresponding to :py:`key` is looked up in the layout. If the field's shape is
-        a shape-castable object that has a :meth:`~.ShapeCastable.__call__` method, it is called and
-        the result is returned. Otherwise, :meth:`~.ShapeCastable.as_shape` is called repeatedly on
-        the shape until either an object with a :meth:`~.ShapeCastable.__call__` method is reached,
-        or a :class:`.Shape` is returned. In the latter case, returns an unspecified Amaranth
-        expression with the right shape.
-
-        Arguments
-        ---------
-        key : :class:`str` or :class:`int` or :class:`.ValueCastable`
-            Name or index of a field.
-
-        Returns
-        -------
-        :class:`.Value` or :class:`.ValueCastable`, :ref:`assignable <lang-assignable>`
-            A slice of the underlying value defined by the field.
-
-        Raises
-        ------
-        :exc:`KeyError`
-            If the layout does not define a field corresponding to :py:`key`.
-        :exc:`TypeError`
-            If :py:`key` is a value-castable object, but the layout of the view is not
-            an :class:`ArrayLayout`.
-        :exc:`TypeError`
-            If :meth:`.ShapeCastable.__call__` does not return a value or a value-castable object.
-        """
-        ...
+    def __getitem__(self, key: slice) -> Self: ...
     def __getitem__(self, key: str | ValueLike | slice):
         """
         Slice the underlying value.

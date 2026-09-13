@@ -995,34 +995,11 @@ class FlippedInterface(Generic[_T_Signature, _T_Interface]):
     def __repr__(self) -> str: ...
 
 @overload
-def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface:
-    """
-    Flip the data flow of the members of the interface object :py:`interface`.
-
-    If an interface object is flipped twice, returns the original object:
-    :py:`flipped(flipped(interface)) is interface`. Otherwise, wraps :py:`interface` in
-    a :class:`FlippedInterface` proxy object that flips the directions of its members.
-
-    See the documentation for the :class:`FlippedInterface` class for a detailed discussion of how
-    this proxy object works.
-    """
-    ...
+def flipped(interface: FlippedInterface[_T_Signature, _T_Interface]) -> _T_Interface: ...
 
 # Can't be typed nicer for now.
 @overload
-def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]:
-    """
-    Flip the data flow of the members of the interface object :py:`interface`.
-
-    If an interface object is flipped twice, returns the original object:
-    :py:`flipped(flipped(interface)) is interface`. Otherwise, wraps :py:`interface` in
-    a :class:`FlippedInterface` proxy object that flips the directions of its members.
-
-    See the documentation for the :class:`FlippedInterface` class for a detailed discussion of how
-    this proxy object works.
-    """
-    ...
-
+def flipped(interface: _T_Interface) -> FlippedInterface[Any, _T_Interface]: ...
 def flipped(interface: _T_Interface) -> _T_Interface | FlippedInterface[Any, _T_Interface]:
     """
     Flip the data flow of the members of the interface object :pc:`interface`.

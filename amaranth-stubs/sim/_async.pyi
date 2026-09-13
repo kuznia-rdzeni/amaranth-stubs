@@ -445,67 +445,9 @@ class SimulatorContext:
         """
         ...
     @overload
-    def tick(self, domain: str = ..., *, context: Optional[Elaboratable] = ...) -> TickTrigger:
-        """
-        Wait until an active clock edge or an asynchronous reset occurs.
-
-        This method returns a :class:`TickTrigger` object that, when awaited, pauses the execution
-        of the calling process or testbench until the active edge of the clock, or the asynchronous
-        reset (if applicable), occurs. The returned object may be used to repeatedly wait for one
-        of these events until a condition is satisfied or a specific number of times. See
-        the :ref:`tick trigger reference <sim-tick-trigger>` for more details.
-
-        The :py:`domain` may be either a :class:`ClockDomain` or a :class:`str`. If it is
-        a :class:`str`, a clock domain with this name is looked up in
-        the :ref:`elaboratable <lang-elaboration>` :py:`context`, or in :py:`toplevel` if
-        :py:`context` is not provided.
-
-        Raises
-        ------
-        :exc:`ValueError`
-            If :py:`domain` is :py:`"comb"`.
-        :exc:`ValueError`
-            If :py:`domain` is a :class:`~.hdl.ClockDomain` and :py:`context` is provided and not
-            :py:`None`.
-        :exc:`ValueError`
-            If :py:`context` is an elaboratable that is not a direct or indirect submodule of
-            :py:`toplevel`.
-        :exc:`NameError`
-            If :py:`domain` is a :class:`str`, but there is no clock domain with this name in
-            :py:`context` or :py:`toplevel`.
-        """
-        ...
+    def tick(self, domain: str = ..., *, context: Optional[Elaboratable] = ...) -> TickTrigger: ...
     @overload
-    def tick(self, domain: ClockDomain) -> TickTrigger:
-        """
-        Wait until an active clock edge or an asynchronous reset occurs.
-
-        This method returns a :class:`TickTrigger` object that, when awaited, pauses the execution
-        of the calling process or testbench until the active edge of the clock, or the asynchronous
-        reset (if applicable), occurs. The returned object may be used to repeatedly wait for one
-        of these events until a condition is satisfied or a specific number of times. See
-        the :ref:`tick trigger reference <sim-tick-trigger>` for more details.
-
-        The :py:`domain` may be either a :class:`ClockDomain` or a :class:`str`. If it is
-        a :class:`str`, a clock domain with this name is looked up in
-        the :ref:`elaboratable <lang-elaboration>` :py:`context`, or in :py:`toplevel` if
-        :py:`context` is not provided.
-
-        Raises
-        ------
-        :exc:`ValueError`
-            If :py:`domain` is :py:`"comb"`.
-        :exc:`ValueError`
-            If :py:`domain` is a :class:`~.hdl.ClockDomain` and :py:`context` is provided and not
-            :py:`None`.
-        :exc:`ValueError`
-            If :py:`context` is an elaboratable that is not a direct or indirect submodule of
-            :py:`toplevel`.
-        :exc:`NameError`
-            If :py:`domain` is a :class:`str`, but there is no clock domain with this name in
-            :py:`context` or :py:`toplevel`.
-        """
-        ...
+    def tick(self, domain: ClockDomain) -> TickTrigger: ...
     def tick(self, domain: str | ClockDomain = ..., *, context: Optional[Elaboratable] = ...) -> TickTrigger:
         """
         Wait until an active clock edge or an asynchronous reset occurs.
@@ -567,47 +509,9 @@ class SimulatorContext:
         """
         ...
     @overload
-    def get(self, expr: Value) -> int:
-        """
-        Sample the value of an expression.
-
-        The behavior of this method depends on the type of :py:`expr`:
-
-        - If it is a :class:`~.hdl.ValueCastable` whose shape is a :class:`~.hdl.ShapeCastable`,
-          its numeric value is converted to a higher-level representation using
-          :meth:`~.hdl.ShapeCastable.from_bits` and then returned.
-        - If it is a :class:`~.hdl.Value` or a :class:`~.hdl.ValueCastable` whose shape is
-          a :class:`~.hdl.Shape`, the numeric value is returned as an :class:`int`.
-
-        This method is only available in testbenches.
-
-        Raises
-        ------
-        :exc:`TypeError`
-            If the caller is a process.
-        """
-        ...
+    def get(self, expr: Value) -> int: ...
     @overload
-    def get(self, expr: ValueCastable) -> Any:
-        """
-        Sample the value of an expression.
-
-        The behavior of this method depends on the type of :py:`expr`:
-
-        - If it is a :class:`~.hdl.ValueCastable` whose shape is a :class:`~.hdl.ShapeCastable`,
-          its numeric value is converted to a higher-level representation using
-          :meth:`~.hdl.ShapeCastable.from_bits` and then returned.
-        - If it is a :class:`~.hdl.Value` or a :class:`~.hdl.ValueCastable` whose shape is
-          a :class:`~.hdl.Shape`, the numeric value is returned as an :class:`int`.
-
-        This method is only available in testbenches.
-
-        Raises
-        ------
-        :exc:`TypeError`
-            If the caller is a process.
-        """
-        ...
+    def get(self, expr: ValueCastable) -> Any: ...
     def get(self, expr: Value | ValueCastable) -> Any:
         """
         Sample the value of an expression.
@@ -629,45 +533,9 @@ class SimulatorContext:
         """
         ...
     @overload
-    def set(self, expr: Value, value: int) -> None:
-        """
-        Update the value of an expression.
-
-        The behavior of this method depends on the type of :py:`expr`:
-
-        - If it is a :class:`~.hdl.ValueCastable` whose shape is a :class:`~.hdl.ShapeCastable`,
-          :py:`value` is converted to a numeric representation using
-          :meth:`~.hdl.ShapeCastable.const` and then assigned.
-        - If it is a :class:`~.hdl.Value` or a :class:`~.hdl.ValueCastable` whose shape is
-          a :class:`~.hdl.Shape`, :py:`value` is assigned as-is.
-
-        This method is available in both processes and testbenches.
-
-        When used in a testbench, this method runs all processes that wait (directly or
-        indirectly) for the signals in :py:`expr` to change, and returns only after the change
-        propagates through the simulated circuits.
-        """
-        ...
+    def set(self, expr: Value, value: int) -> None: ...
     @overload
-    def set(self, expr: ValueCastable, value: Any) -> None:
-        """
-        Update the value of an expression.
-
-        The behavior of this method depends on the type of :py:`expr`:
-
-        - If it is a :class:`~.hdl.ValueCastable` whose shape is a :class:`~.hdl.ShapeCastable`,
-          :py:`value` is converted to a numeric representation using
-          :meth:`~.hdl.ShapeCastable.const` and then assigned.
-        - If it is a :class:`~.hdl.Value` or a :class:`~.hdl.ValueCastable` whose shape is
-          a :class:`~.hdl.Shape`, :py:`value` is assigned as-is.
-
-        This method is available in both processes and testbenches.
-
-        When used in a testbench, this method runs all processes that wait (directly or
-        indirectly) for the signals in :py:`expr` to change, and returns only after the change
-        propagates through the simulated circuits.
-        """
-        ...
+    def set(self, expr: ValueCastable, value: Any) -> None: ...
     def set(self, expr: Value | ValueCastable, value: Any) -> None:
         """
         Update the value of an expression.
