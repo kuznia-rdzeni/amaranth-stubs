@@ -75,6 +75,40 @@ class PortLike(metaclass=ABCMeta):
         """
         ...
 
+class SingleEndedPort(PortLike):
+    """Represents a single-ended I/O port with optional inversion.
+
+    Parameters
+    ----------
+    io : :class:`IOValue`
+        The raw I/O value being wrapped.
+    invert : :class:`bool` or iterable of :class:`bool`
+        If true, the electrical state of the physical pin will be opposite from the Amaranth value
+        (the ``*Buffer`` classes will insert inverters on :py:`o` and :py:`i` pins, as appropriate).
+
+        This can be used for various purposes:
+
+        - Normalizing active-low pins (such as ``CS_B``) to be active-high in Amaranth code
+        - Compensating for boards where an inverting level-shifter (or similar circuitry) was used
+          on the pin
+
+        If the value is a simple :class:`bool`, it is used for all bits of this port. If the value
+        is an iterable of :class:`bool`, the iterable must have the same length as :py:`io`, and
+        the inversion is specified per-bit.
+    direction : :class:`Direction` or :class:`str`
+        Represents the allowed directions of this port. If equal to :attr:`Direction.Input` or
+        :attr:`Direction.Output`, this port can only be used with buffers of matching direction.
+        If equal to :attr:`Direction.Bidir`, this port can be used with buffers of any direction.
+        If a string is passed, it is cast to :class:`Direction`.
+    """
+    def __init__(
+        self, io: IOValueLike, *, invert: bool | Iterable[bool] = ..., direction: str | Direction = ...
+    ) -> None: ...
+    @property
+    def io(self) -> IOValue:
+        """The :py:`io` argument passed to the constructor."""
+        ...
+
     @property
     def invert(self) -> tuple[bool, ...]:
         """The :py:`invert` argument passed to the constructor, normalized to a :class:`tuple`
