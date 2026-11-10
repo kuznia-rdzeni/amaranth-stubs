@@ -56,7 +56,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
 
     @overload
     def __init__(
-        self: Memory[ShapeCastable[_T_ValueOrValueCastable], _T_ValueOrValueCastable],
+        self: Memory[ShapeCastable[_T_ValueOrValueCastable], _T_ValueOrValueCastable],  # pyright: ignore[reportInvalidTypeVarUse]
         data: None = ...,
         *,
         shape: ShapeCastable[_T_ValueOrValueCastable] = ...,
@@ -67,7 +67,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     ) -> None: ...
     @overload
     def __init__(
-        self: Memory[_T_FlatShapeLike, Value],
+        self: Memory[_T_FlatShapeLike, Value],  # pyright: ignore[reportInvalidTypeVarUse]
         data: None = ...,
         *,
         shape: _T_FlatShapeLike = ...,
@@ -78,7 +78,7 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     ) -> None: ...
     @overload
     def __init__(
-        self: Memory[_T_ShapeLike, Value],
+        self: Memory[_T_ShapeLike, Value],  # pyright: ignore[reportInvalidTypeVarUse]
         data: MemoryData = ...,
         *,
         shape: None = ...,
