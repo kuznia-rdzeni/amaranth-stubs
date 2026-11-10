@@ -1,4 +1,4 @@
-name: Transactron smoke test
+name: Smoke test
 
 on:
   push:
