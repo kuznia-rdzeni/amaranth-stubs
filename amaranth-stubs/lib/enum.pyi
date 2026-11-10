@@ -12,6 +12,7 @@ __all__ = ["EnumType", "Enum", "IntEnum", "Flag", "IntFlag", "EnumView", "FlagVi
 _T = TypeVar("_T")
 _T_Enum = TypeVar("_T_Enum", bound=Enum, default=Enum)
 _T_Flag = TypeVar("_T_Flag", bound=Flag, default=Flag)
+_T_EnumOrFlag = TypeVar("_T_EnumOrFlag", bound=Enum | Flag, default=Enum)
 _T_IntEF = TypeVar("_T_IntEF", bound=IntEnum | IntFlag)
 
 auto = py_enum.auto
@@ -54,12 +55,12 @@ class EnumType(ShapeCastable, py_enum.EnumType):
     @overload
     def __call__(cls: type[_T], value: _T) -> _T: ...
     @overload
-    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value: ...
+    def __call__(cls: type[_T_IntEF], value: Value | ValueCastable) -> Value: ...  # pyright: ignore[reportOverlappingOverload]
     @overload
-    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]: ...
+    def __call__(cls: type[_T_Enum], value: Value | ValueCastable) -> EnumView[_T_Enum]: ...  # pyright: ignore[reportOverlappingOverload]
     @overload
-    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]: ...
-    def __call__(cls, value: ValueLike) -> ValueLike:
+    def __call__(cls: type[_T_Flag], value: Value | ValueCastable) -> FlagView[_T_Flag]: ...  # pyright: ignore[reportOverlappingOverload]
+    def __call__(cls, value: ValueLike) -> ValueLike:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Cast the value to this enum type.
 
@@ -116,20 +117,20 @@ class IntFlag(py_enum.IntFlag, metaclass=EnumType):
 
     ...
 
-class EnumView(ValueCastable, Generic[_T_Enum]):
+class EnumView(ValueCastable, Generic[_T_EnumOrFlag]):
     """The view class used for :class:`Enum`.
 
     Wraps a :class:`Value` and only allows type-safe operations. The only operators allowed are
     equality comparisons (``==`` and ``!=``) with another :class:`EnumView` of the same enum type.
     """
 
-    def __init__(self, enum: _T_Enum, target: ValueLike):
+    def __init__(self, enum: _T_EnumOrFlag, target: ValueLike):
         """
         Constructs a view with the given enum type and target
         (a :ref:`value-like <lang-valuelike>`).
         """
         ...
-    def shape(self) -> type[_T_Enum]:
+    def shape(self) -> type[_T_EnumOrFlag]:
         """Returns the underlying enum type."""
         ...
     @ValueCastable.lowermethod
@@ -146,7 +147,7 @@ class EnumView(ValueCastable, Generic[_T_Enum]):
             ``self.as_value().eq(other)``
         """
         ...
-    def __eq__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value:
+    def __eq__(self, other: EnumView[_T_EnumOrFlag] | _T_EnumOrFlag) -> Value:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Compares the underlying value for equality.
 
         The other operand has to be either another :class:`EnumView` with the same enum type, or
@@ -159,7 +160,7 @@ class EnumView(ValueCastable, Generic[_T_Enum]):
         """
         ...
 
-    def __ne__(self, other: EnumView[_T_Enum] | _T_Enum) -> Value: ...
+    def __ne__(self, other: EnumView[_T_EnumOrFlag] | _T_EnumOrFlag) -> Value: ...  # pyright: ignore[reportIncompatibleMethodOverride]
 
 class FlagView(EnumView[_T_Flag], Generic[_T_Flag]):
     """The view class used for :class:`Flag`.

@@ -36,5 +36,8 @@ jobs:
       - name: Check format
         run: ruff format --check
 
-      - name: Check types
+      - name: Lint
         run: ruff check
+
+      - name: Check types
+        run: pyright

@@ -316,7 +316,7 @@ class Record(ValueCastable):
         Like :meth:`__or__`, with operands swapped.
         """
         ...
-    def __eq__(self, other: ValueLike) -> Value:
+    def __eq__(self, other: ValueLike) -> Value:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Equality comparison, :py:`self == other`.
 
@@ -325,7 +325,7 @@ class Record(ValueCastable):
         :class:`Value`, :py:`unsigned(1)`
         """
         ...
-    def __ne__(self, other: ValueLike) -> Value:
+    def __ne__(self, other: ValueLike) -> Value:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Inequality comparison, :py:`self != other`.
 
@@ -450,7 +450,7 @@ class Record(ValueCastable):
         :class:`Value`, :py:`unsigned(1)`
         """
         ...
-    def implies(premise, conclusion: ValueLike) -> Value: ...
+    def implies(self, conclusion: ValueLike) -> Value: ...
     def bit_select(self, offset: ValueLike, width: int) -> Value:
         """
         Part-select with bit granularity.

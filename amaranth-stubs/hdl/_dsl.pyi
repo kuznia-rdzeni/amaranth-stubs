@@ -16,9 +16,6 @@ __all__ = ["SyntaxError", "SyntaxWarning", "Module"]
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
 
-class SyntaxError(Exception): ...
-class SyntaxWarning(Warning): ...
-
 class _ModuleBuilderProxy:
     def __init__(self, builder, depth) -> None: ...
 
