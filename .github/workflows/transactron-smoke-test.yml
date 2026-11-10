@@ -1,0 +1,50 @@
+name: Transactron smoke test
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - master
+      - 'feature/**'
+  workflow_dispatch:
+
+jobs:
+  transactron-pyright:
+    name: Typecheck Transactron with Pyright
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          path: amaranth-stubs
+          fetch-depth: 0
+
+      - name: Checkout Transactron
+        uses: actions/checkout@v6
+        with:
+          repository: 'kuznia-rdzeni/transactron'
+          path: transactron
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: |
+            amaranth-stubs/pyproject.toml
+            transactron/pyproject.toml
+
+      - name: Install dependencies
+        working-directory: transactron
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install --group lint .[testing]
+          pip3 install ../amaranth-stubs
+
+      - name: Check types
+        working-directory: transactron
+        run: python3 -m pyright
