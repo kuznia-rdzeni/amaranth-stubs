@@ -52,8 +52,6 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     :class:`Memory`, e.g. to instantiate library cells directly.
     """
 
-    Init = MemoryData.Init
-
     @overload
     def __init__(
         self: Memory[ShapeCastable[_T_ValueOrValueCastable], _T_ValueOrValueCastable],  # pyright: ignore[reportInvalidTypeVarUse]
@@ -104,9 +102,9 @@ class Memory(wiring.Component, Generic[_T_ShapeLike, _T_ValueOrValueCastable]):
     @property
     def depth(self) -> int: ...
     @property
-    def init(self) -> Init: ...
+    def init(self) -> MemoryData.Init: ...
     @init.setter
-    def init(self, init: Init) -> None: ...
+    def init(self, init: MemoryData.Init) -> None: ...
     @property
     def attrs(self) -> dict[str, str]: ...
     def read_port(
