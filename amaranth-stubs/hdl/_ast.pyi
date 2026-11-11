@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterator, MutableMapping, MutableSequence,
 from typing import Generic, NoReturn, Optional, TypeVar, final, overload
 from enum import Enum, EnumMeta
 from amaranth_types import ValueLike, FlatValueLike, ShapeLike, FlatShapeLike, StatementLike
-from amaranth_types.types import IOValueLike, SwitchKey
+from amaranth_types.types import IOValueLike, SrcLoc, SwitchKey
 from amaranth.lib.enum import EnumView, FlagView, _T_Enum, _T_Flag
 
 __all__: list[str] = [
@@ -1037,7 +1037,7 @@ class Value(metaclass=ABCMeta):
         """
         ...
 
-    def eq(self, value: ValueLike) -> Assign:
+    def eq(self, value: ValueLike, *, src_loc_at: int = ...) -> Assign:
         r"""
         :ref:`Assignment <lang-assigns>`.
 
@@ -1108,20 +1108,17 @@ class Const(Value, metaclass=_ConstMeta):
 C = Const
 
 class AnyValue(Value, DUID):
-    def __init__(self, shape: ShapeLike, *, src_loc_at=...) -> None: ...
+    class Kind(Enum):
+        AnyConst = "anyconst"
+        AnySeq = "anyseq"
+
+    kind: Kind
+    def __init__(self, kind: Kind | str, shape: ShapeLike, *, src_loc_at=...) -> None: ...
     def shape(self) -> Shape: ...
+    def __repr__(self) -> str: ...
 
-@final
-class AnyConst(AnyValue):
-    def __repr__(self) -> str:
-        """Return repr(self)."""
-        ...
-
-@final
-class AnySeq(AnyValue):
-    def __repr__(self) -> str:
-        """Return repr(self)."""
-        ...
+def AnyConst(shape: ShapeLike, *, src_loc_at: int = ...) -> AnyValue: ...
+def AnySeq(shape: ShapeLike, *, src_loc_at: int = ...) -> AnyValue: ...
 
 @final
 class Operator(Value):
@@ -1164,8 +1161,11 @@ class Part(Value):
     def shape(self) -> Shape: ...
     def __repr__(self) -> str: ...
 
-@final
-class Cat(Value):
+@overload
+def Cat(*parts: Flattenable[ValueLike], src_loc_at: int = ...) -> Concat: ...
+@overload
+def Cat(*parts: Flattenable[IOValue], src_loc_at: int = ...) -> IOConcat: ...
+def Cat(*parts, src_loc_at: int = ...) -> Concat | IOConcat:
     """
     Concatenate values.
 
@@ -1190,13 +1190,7 @@ class Cat(Value):
     Value, inout
         Resulting ``Value`` obtained by concatenation.
     """
-    def __init__(self, *args: Flattenable[ValueLike], src_loc_at=...) -> None:
-        """Initialize self.  See help(type(self)) for accurate signature."""
-        ...
-    def shape(self) -> Shape: ...
-    def __repr__(self) -> str:
-        """Return repr(self)."""
-        ...
+    ...
 
 @final
 class Concat(Value):
@@ -1628,11 +1622,10 @@ class Switch(Statement):
     def __init__(
         self,
         test: ValueLike,
-        cases: Mapping[SwitchKey, StatementLike],
+        cases: Iterable[tuple[SwitchKey | tuple[SwitchKey, ...] | None, StatementLike, Optional[SrcLoc]]],
         *,
-        src_loc=...,
-        src_loc_at=...,
-        case_src_locs=...,
+        src_loc: Optional[SrcLoc] = ...,
+        src_loc_at: int = ...,
     ) -> None: ...
     def __repr__(self) -> str: ...
 

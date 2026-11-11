@@ -41,7 +41,7 @@ class BuildPlan:
         """
         ...
 
-    def execute_local(self, root=..., *, run_script=...):  # -> LocalBuildProducts:
+    def execute_local(self, root=..., *, run_script=..., env=...):  # -> LocalBuildProducts:
         """
         Execute build plan using the local strategy. Files from the build plan are placed in
         the build root directory ``root``, and, if ``run_script`` is ``True``, the script

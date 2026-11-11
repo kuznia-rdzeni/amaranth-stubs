@@ -6,6 +6,7 @@ from collections.abc import Iterable, MutableSequence
 from typing import NoReturn, Optional, final, overload
 from ._ast import *
 from ._ir import Elaboratable, Fragment
+from amaranth_types.types import SrcLoc
 
 __all__ = ["MemoryData", "Memory", "ReadPort", "WritePort", "DummyPort"]
 
@@ -206,4 +207,4 @@ class DummyPort:
 
 class MemoryInstance(Fragment):
     attrs: dict
-    def __init__(self, memory: Memory, read_ports: list[ReadPort], write_ports: list[WritePort]) -> None: ...
+    def __init__(self, *, data: MemoryData, attrs: Optional[dict] = ..., src_loc: Optional[SrcLoc] = ...) -> None: ...

@@ -66,7 +66,7 @@ class Simulator:
     toplevel : :class:`~amaranth.hdl.Elaboratable`
         Simulated design.
     """
-    def __init__(self, fragment, *, engine=...) -> None: ...
+    def __init__(self, toplevel, *, engine=...) -> None: ...
     def add_process(
         self, process: Callable[[], TestGenerator[None]] | Callable[[ProcessContext], TestCoroutine[None]]
     ) -> None:
@@ -116,7 +116,7 @@ class Simulator:
         ...
     def add_testbench(
         self,
-        process: Callable[[], TestGenerator[None]] | Callable[[TestbenchContext], TestCoroutine[None]],
+        constructor: Callable[[], TestGenerator[None]] | Callable[[TestbenchContext], TestCoroutine[None]],
         *,
         background: bool = False,
     ) -> None:

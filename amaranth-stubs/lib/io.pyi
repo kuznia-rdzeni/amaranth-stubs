@@ -30,9 +30,6 @@ class Direction(enum.Enum):
     #: Bidirectional (can be switched between input and output)
     Bidir = "io"
 
-    def __or__(self, other: Direction) -> Direction:
-        """Return self|value."""
-        ...
     def __and__(self, other: Direction) -> Direction:
         """
         Narrow the set of possible directions.
@@ -62,7 +59,7 @@ class PortLike(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def __getitem__(self, index: int | slice) -> PortLike:
+    def __getitem__(self, key: int | slice) -> PortLike:
         """Slices the port, returning another :class:`PortLike` with a subset
         of its bits.
 
