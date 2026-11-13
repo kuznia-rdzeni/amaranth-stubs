@@ -34,7 +34,9 @@ class Flow(enum.Enum):
         """
         ...
 
-    def __call__(self, description: AbstractSignature | ShapeLike, *, reset=...) -> Member:
+    def __call__(
+        self, description: AbstractSignature | ShapeLike, *, init=..., reset=..., src_loc_at: int = ...
+    ) -> Member:
         """Create a :class:`Member` with this data flow and the provided description and
         reset value.
 
@@ -72,7 +74,14 @@ class Member:
     :data:`In` and :data:`Out`, e.g. :pc:`In(unsigned(1))` or :pc:`Out(stream.Signature(RGBPixel))`.
     """
     def __init__(
-        self, flow: Flow, description: AbstractSignature | ShapeLike, *, reset=..., _dimensions=...
+        self,
+        flow: Flow,
+        description: AbstractSignature | ShapeLike,
+        *,
+        init=...,
+        reset=...,
+        _dimensions=...,
+        src_loc_at: int = ...,
     ) -> None: ...
     def flip(self) -> Member:
         """Flip the data flow of this member.
@@ -1123,7 +1132,9 @@ class Component(Elaboratable, Generic[_T_Signature]):
         If a name conflict is detected between two variable annotations, or between a member
         and an existing attribute.
     """
-    def __init__(self, signature: Optional[_T_Signature | dict[str, Member]] = None) -> None: ...
+    def __init__(
+        self, signature: Optional[_T_Signature | dict[str, Member]] = None, *, src_loc_at: int = ...
+    ) -> None: ...
     @property
     def signature(self) -> _T_Signature:
         """The signature of the component.

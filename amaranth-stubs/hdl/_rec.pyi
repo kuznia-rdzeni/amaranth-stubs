@@ -583,7 +583,7 @@ class Record(ValueCastable):
         :class:`Value`, :py:`unsigned(len(self))`, :ref:`assignable <lang-assignable>`
         """
         ...
-    def eq(self, value: ValueLike) -> Assign:
+    def eq(self, value: ValueLike, *, src_loc_at: int = ...) -> Assign:
         r"""
         :ref:`Assignment <lang-assigns>`.
 
